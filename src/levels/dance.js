@@ -240,6 +240,7 @@ defineLevel({
   dev:'Boss : Ginette', devTitle:'BOSS : GINETTE',
   track:'c', hour:()=>.5,
   place:()=>'Piste de danse',
+  fx:{bloom:0.65},   // glow (src/gfx/effects.ts)
   start:setupDance,
   afterPhone:()=>{stopDanceMusic();setupDance()},   // the chart starts when the phone closes
   canPause:()=>false,

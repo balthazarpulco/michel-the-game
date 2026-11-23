@@ -58,6 +58,7 @@ defineLevel({
   dev:'Blackjack', devTitle:'BLACKJACK',
   track:'d', hour:()=>1.25,
   place:()=>'Au Casino',
+  fx:{bloom:0.35},   // glow (src/gfx/effects.ts)
   start:setupBJ,
   update:updateBJ, draw:drawBJ,
   keydown:e=>{

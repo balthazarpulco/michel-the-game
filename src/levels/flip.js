@@ -97,6 +97,7 @@ defineLevel({
   dev:'Flipper', devTitle:'FLIPPER',
   track:'d', hour:()=>1.4,
   place:()=>'Au Casino',
+  fx:{bloom:0.5},   // glow (src/gfx/effects.ts)
   start:setupFlip,
   update:updateFlip, draw:drawFlip,
   pointer:(e,x)=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}MP.ids[e.pointerId]=x<W/2?'l':'r';MP.l=Object.values(MP.ids).includes('l');MP.r=Object.values(MP.ids).includes('r')},

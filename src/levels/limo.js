@@ -97,6 +97,7 @@ defineLevel({
   dev:'Limousine', devTitle:'LIMOUSINE',
   track:'d', hour:()=>1.05,
   place:()=>'En limousine',
+  fx:{bloom:0.45},   // glow (src/gfx/effects.ts)
   start:setupLimo,
   update:updateLimo, draw:drawLimo,
   keydown:e=>{if(e.code==='Space'||e.code==='Enter'||e.code==='KeyE'){e.preventDefault();if(!e.repeat)limoDrink();return true}return false},
