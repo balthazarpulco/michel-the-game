@@ -29,6 +29,7 @@
   "ui/chapters.js",
   "levels/boss.js",
   "levels/bike.js",
+  "render/juice.js",
   "core/minigame.js",
   "levels/limo.js",
   "levels/bj.js",

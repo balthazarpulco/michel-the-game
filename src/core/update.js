@@ -48,7 +48,7 @@ function update(dt){
     }
   }
   if(!p.onGround)p.peak=Math.min(p.peak??p.y,p.y);
-  if(p.onGround&&!was){p.land=.12;if(level===3)landNoise(p.y-(p.peak??p.y));p.peak=p.y}
+  if(p.onGround&&!was){p.land=.12;juiceLand(p,p.y-(p.peak??p.y));if(level===3)landNoise(p.y-(p.peak??p.y));p.peak=p.y}
   if(p.onGround&&p.y+p.h>=GROUND-1&&p.slip<=0)for(const pd of puddles){
     if(p.x+p.w>pd.x+8&&p.x<pd.x+pd.w-8){p.slip=1;p.vx=(Math.abs(p.vx)>40?p.vx:p.facing*120)*1.35;popups.push({x:p.x+p.w/2,y:p.y-8,text:'OUACHE! ÇA GLISSE',t:1,c:'#c7d36f'});beep(500,150,.25,'sine',.06);break}
   }
@@ -132,7 +132,7 @@ function update(dt){
         lives=Math.min(MAXL,lives+3);sfx.beer();setTimeout(()=>beep(880,1760,.25,'triangle',.08),100);
         popups.push({x:it.x,y:it.y-36,text:'BOISSON ÉNERGISANTE · +3 VIES!',t:1.6,c:'#5ee0ff'});shake=.15;
       }else{beers++;ammo++;sfx.beer()}
-      popups.push({x:it.x,y:it.y-10,text:'+'+pts,t:.9,c:it.type==='cig'?'#fff4dc':'#ffbf47'});
+      popups.push({x:it.x,y:it.y-10,text:'+'+pts,t:.9,c:it.type==='cig'?'#fff4dc':'#ffbf47'});FX.burst('ember',it.x-camX,it.y,{n:it.type==='cig'?5:8,colors:it.type==='cig'?[0xff7a1a,0xffb347]:[0xffd23f,0xfff2b0]});
       for(let i=0;i<8;i++)parts.push({x:it.x,y:it.y,vx:rnd(-140,140),vy:rnd(-220,-40),life:.5,max:.5,c:it.type==='cig'?'#ff9a3c':'#ffd27a',r:rnd(2,4),g:500});
     }
   }

@@ -60,8 +60,9 @@ function danceHit(dir){
     best.hit=true;D.hits++;D.combo++;D.best=Math.max(D.best,D.combo);
     const [txt,pts,m,c]=bd<DF.dWin*.32?['PARFAIT!',100,.06,'#9fe3a0']:bd<DF.dWin*.64?['BIEN!',60,.04,'#5ee0ff']:['OK',25,.02,'#ffd166'];
     score+=pts+Math.min(D.combo,20)*2;D.meter=Math.min(1,D.meter+m);D.judge={txt,c,t:.6};
+    FX.burst('spark',LANE_X[dir],HIT_Y,{n:bd<DF.dWin*.32?12:6,colors:[parseInt(ARROW_COL[dir].slice(1,7),16),0xffffff],gravity:0});
     for(let i=0;i<8;i++)parts.push({x:LANE_X[dir],y:HIT_Y,vx:rnd(-160,160),vy:rnd(-160,120),life:.4,max:.4,c:ARROW_COL[dir],r:rnd(2,4),g:0});
-    if(D.combo>0&&D.combo%10===0){D.cheer=.9;D.cwSay={k:pick(CW_FLOOR.map(c=>c.k)),txt:pick(['GO MICHEL!','Wooooh!','Le roi du disco!','T\'es en feu!']),t:1.5}}
+    if(D.combo>0&&D.combo%10===0){juiceWin(W/2,170);D.cheer=.9;D.cwSay={k:pick(CW_FLOOR.map(c=>c.k)),txt:pick(['GO MICHEL!','Wooooh!','Le roi du disco!','T\'es en feu!']),t:1.5}}
     if(D.combo>0&&D.combo%10===0){D.say=pick(['Ooh, Michel!','Ça, c\'est du disco!','T\'as du rythme, mon beau!']);D.sayT=1.6}
   }else{D.meter=Math.max(0,D.meter-.03);D.judge={txt:'TROP TÔT',c:'#ff9a9a',t:.4}}
 }
@@ -241,6 +242,7 @@ defineLevel({
   track:'c', hour:()=>.5,
   place:()=>'Piste de danse',
   fx:{bloom:0.65},   // glow (src/gfx/effects.ts)
+  fxTick:dt=>fxMotes(dt,7,60,W-60,140,420,[0xffffff,0xffb3e0,0xb3d9ff]),   // sparkles in the club lights
   start:setupDance,
   afterPhone:()=>{stopDanceMusic();setupDance()},   // the chart starts when the phone closes
   canPause:()=>false,

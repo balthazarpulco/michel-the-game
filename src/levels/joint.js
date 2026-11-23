@@ -25,7 +25,7 @@ function updateJoint(dt){
   const j=J;j.t+=dt;j.sayT-=dt;
   for(const q of popups){q.t-=dt;q.y-=40*dt}popups=popups.filter(q=>q.t>0);
   j.puffA=Math.max(0,j.puffA-dt);j.ldPuffA=Math.max(0,j.ldPuffA-dt);
-  for(const e of j.exhale){e.t-=dt;if(e.t<=0){const m=jointMouth(e.who);for(let i=0;i<3;i++)j.smoke.push({x:m.x,y:m.y,vx:(e.who==='m'?1:-1)*rnd(10,40),vy:rnd(-40,-15),r:rnd(8,14),life:rnd(2.6,4),max:4})}}
+  for(const e of j.exhale){e.t-=dt;if(e.t<=0){const m=jointMouth(e.who);FX.burst('smoke',m.x,m.y,{n:3,vx:(e.who==='m'?1:-1)*26,size:[10,18],grow:4,life:[2.2,3.4],alpha:.26});for(let i=0;i<3;i++)j.smoke.push({x:m.x,y:m.y,vx:(e.who==='m'?1:-1)*rnd(10,40),vy:rnd(-40,-15),r:rnd(8,14),life:rnd(2.6,4),max:4})}}
   j.exhale=j.exhale.filter(e=>e.t>0);
   for(const s of j.smoke){s.life-=dt;s.x+=s.vx*dt+Math.sin(t*1.3+s.y*.02)*10*dt;s.y+=s.vy*dt;s.r+=dt*9;s.vx*=.99}
   j.smoke=j.smoke.filter(s=>s.life>0);

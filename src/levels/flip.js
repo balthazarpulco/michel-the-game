@@ -12,7 +12,7 @@ function pbWalls(){const W2=[],X0=PB.x0,X1=PB.x1,Y0=PB.y0,cx=(X0+X1)/2,top=Y0+70
   return W2}
 function setupFlip(){camX=0;genDone=true;FL={time:15+flipBonus,t:-1.2,pts:0,balls:[],respawn:.2,lf:{a:.5,pa:.5},rf:{a:.5,pa:.5},bump:[{x:430,y:205,r:24,f:0},{x:530,y:205,r:24,f:0},{x:480,y:285,r:26,f:0}],can:{x:480,y:150,r:16,on:true,t:0},slow:0,walls:pbWalls(),done:false,endT:0,say:'GO MICHEL GO!!',sayT:2,jack:0,lights:0,combo:0,comboT:0};}
 function pbSpawn(x,y,vx,vy){FL.balls.push({x:x??PB.x1-26,y:y??PB.y0+90,vx:vx??-260,vy:vy??80,r:8,trail:[]})}
-function pbAdd(n,x,y,c){FL.pts+=n;score+=n;popups.push({x,y,text:'+'+n,t:.7,c:c||'#ffd23f'})}
+function pbAdd(n,x,y,c){FL.pts+=n;score+=n;if(n>=100)FX.burst('spark',x,y,{n:n>=500?20:8,colors:[0xffd23f,0x5ee0ff,0xffffff]});popups.push({x,y,text:'+'+n,t:.7,c:c||'#ffd23f'})}
 function segHit(b,ax,ay,bx,by,rad,e,vx0,vy0){const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy,u=clamp(((b.x-ax)*dx+(b.y-ay)*dy)/L2,0,1),cx=ax+dx*u,cy=ay+dy*u,ox=b.x-cx,oy=b.y-cy,d=Math.hypot(ox,oy),R=b.r+rad;
   if(d>=R||d===0)return false;const nx=ox/d,ny=oy/d;b.x=cx+nx*R;b.y=cy+ny*R;const rvx=b.vx-(vx0||0)*u,rvy=b.vy-(vy0||0)*u,vn=rvx*nx+rvy*ny;if(vn<0){b.vx-=(1+e)*vn*nx;b.vy-=(1+e)*vn*ny}return true}
 function flipTip(P,a,side){return [P[0]+side*Math.cos(a)*PB.FLL,P[1]+Math.sin(a)*PB.FLL]}
@@ -98,6 +98,7 @@ defineLevel({
   track:'d', hour:()=>1.4,
   place:()=>'Au Casino',
   fx:{bloom:0.5},   // glow (src/gfx/effects.ts)
+  fxTick:dt=>{if(FL&&FL.t>=0)for(const b of FL.balls)if(Math.random()<.6)FX.emit('mote',b.x,b.y,{colors:[0x5ee0ff,0xb3f2ff],life:[.25,.5],size:[3,6],speed:[0,10],gravity:0})},   // ball trails
   start:setupFlip,
   update:updateFlip, draw:drawFlip,
   pointer:(e,x)=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}MP.ids[e.pointerId]=x<W/2?'l':'r';MP.l=Object.values(MP.ids).includes('l');MP.r=Object.values(MP.ids).includes('r')},

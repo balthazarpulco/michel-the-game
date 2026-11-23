@@ -192,6 +192,7 @@ defineLevel({
   dev:'Le boulevard', devTitle:'NIVEAU 2',
   track:'b', hour:x=>(21+clamp(x/LEN[2],0,1)*4.5)%24,
   place:left=>`Chez Ginette : ${left} m`,
+  fxTick:dt=>fxDrizzle(dt,55),   // 21 h, a light drizzle
   start:()=>setupStreet(2),
   keys:[['← →','bouger'],['ESPACE','sauter'],['E','lancer une bière'],['MAJ','sprint']],
   legend:true,

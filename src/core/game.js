@@ -4,7 +4,7 @@
 // ---------- update ----------
 function hurt(why,dir){
   if(player.inv>0||godMode)return;
-  lives--;sfx.hurt();
+  lives--;sfx.hurt();rumble(.8,.5,260);
   player.inv=DF.inv;player.vy=-520;player.vx=-dir*260;
   banner={text:why,t:1.6};
   shake=.3;
@@ -48,13 +48,13 @@ function leaveBoss(){
 
 // ---------- beers ----------
 function shatter(x,y,foam){
-  sfx.glass();
+  sfx.glass();FX.burst('spark',x-camX,y,{n:10,colors:[0xffe2a0,0xc98a3b,0xffffff],speed:[80,260]});if(foam!==false)FX.burst('smoke',x-camX,y,{n:4,size:[6,10],grow:2.2,life:[.4,.8],alpha:.6,colors:[0xfffbe8]});
   for(let i=0;i<10;i++)parts.push({x,y,vx:rnd(-180,180),vy:rnd(-320,-80),life:.6,max:.6,c:pick(['#a8641f','#c98a3b','#7a4a1c']),r:rnd(2,4),g:900});
   if(foam!==false)for(let i=0;i<6;i++)parts.push({x,y,vx:rnd(-60,60),vy:rnd(-140,-40),life:.7,max:.7,c:'#fffbe8',r:rnd(3,6),g:300});
 }
 function knockOut(e,b,stomp){
   e.ko=true;e.kvy=stomp?-300:-520;e.kvx=Math.sign(b.vx||1)*(stomp?120:240);e.ky=0;e.rot=0;e.near=false;e.act=null;
-  score+=50;koCount++;if(koCount>=25)award('ko');sfx.ko();if(!stomp)shatter(b.x,b.y);
+  score+=50;koCount++;juiceHit(e.x+e.w/2-camX,GROUND-(e.dh||e.h)*.8,[0xffd23f,0xffffff,0xff3d9a],stomp);rumble(.5,.3,140);if(koCount>=25)award('ko');sfx.ko();if(!stomp)shatter(b.x,b.y);
   else for(let i=0;i<10;i++)parts.push({x:b.x,y:b.y,vx:rnd(-160,160),vy:rnd(-200,-40),life:.5,max:.5,c:'#fff4dc',r:rnd(2,4),g:600});
   popups.push({x:e.x+e.w/2,y:GROUND-(e.dh||e.h)-10,text:stomp?'ÉCRASÉ! +50':'K.O. +50',t:1,c:'#ffbf47'});
 }

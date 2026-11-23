@@ -155,6 +155,7 @@ defineLevel({
   dev:'Chez Michel', devTitle:'NIVEAU 4',
   track:'e', hour:x=>3+clamp(x/HOME_LEN,0,1)*.4,
   place:left=>`Ton lit : ${left} m`,
+  fxTick:dt=>fxMotes(dt,1.6,0,W,120,420,[0xffe9c4]),   // dust in the lamp light
   start:setupHome,
   touchLabels:{E:'VOMIR',MAJ:'COURIR'},
   frozen:dt=>{if(home&&(home.wake||home.win)){updateHomeEnd(dt);return true}return false},

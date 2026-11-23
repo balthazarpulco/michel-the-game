@@ -5,7 +5,7 @@
 // Mini-games: Paper Toss 98 (kill time), the limo, blackjack, pinball
 // =====================================================================
 const MP={x:0,y:0,down:false,ids:{}};
-function fxBurst(x,y,cols,n,sp){for(let i=0;i<(n||16);i++){const a=Math.random()*7,v=rnd(80,sp||320);parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-80,life:.8,max:.8,c:pick(cols),r:rnd(2,4.5),g:700})}}
+function fxBurst(x,y,cols,n,sp){if(GFX){const c=(cols||[]).map(h=>parseInt(String(h).slice(1,7),16)).filter(v=>!isNaN(v));if((n||16)>=40)juiceWin(x,y);else juiceHit(x,y,c.length?c:undefined,(n||16)>=24)}for(let i=0;i<(n||16);i++){const a=Math.random()*7,v=rnd(80,sp||320);parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-80,life:.8,max:.8,c:pick(cols),r:rnd(2,4.5),g:700})}}
 function mgParts(dt){for(const q of parts){q.life-=dt;q.vy+=(q.g||0)*dt;q.x+=q.vx*dt;q.y+=q.vy*dt}parts=parts.filter(q=>q.life>0);for(const q of popups){q.t-=dt;q.y-=40*dt}popups=popups.filter(q=>q.t>0);if(banner){banner.t-=dt;if(banner.t<=0)banner=null}shake=Math.max(0,shake-dt)}
 function mgDrawParts(){for(const q of parts){ctx.globalAlpha=clamp(q.life/q.max*1.5,0,1);ctx.fillStyle=q.c;ctx.beginPath();ctx.arc(q.x,q.y,q.r,0,7);ctx.fill()}ctx.globalAlpha=1;
   for(const q of popups){ctx.globalAlpha=clamp(q.t*2,0,1);ctx.font='20px "Lilita One", Inter, Arial';ctx.textAlign='center';ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.strokeText(q.text,q.x,q.y);ctx.fillStyle=q.c;ctx.fillText(q.text,q.x,q.y);ctx.globalAlpha=1}}

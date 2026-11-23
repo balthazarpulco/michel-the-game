@@ -227,3 +227,12 @@ body.pad .diff button:focus{outline-offset:1px}
 /* PixiJS renderer (src/gfx/pixi.ts): its canvas sits exactly over #c, which stays for layout and pointer events */
 #gl{position:absolute;pointer-events:none}
 canvas.under-gl{opacity:0}
+/* CTAs: squash & stretch with a springy overshoot (step 3) */
+button.go,.ghost,.devgrid button{transition:transform .42s cubic-bezier(.3,1.9,.45,1),box-shadow .2s,background .2s,color .2s}
+button.go:hover,button.go:focus-visible{transform:translateY(-2px) scale(1.05,1.08)}
+.ghost:hover,.ghost:focus-visible,.devgrid button:hover,.devgrid button:focus-visible{transform:translateY(-2px) scale(1.04,1.08)}
+button.go:active,.ghost:active,.devgrid button:active{transform:translateY(3px) scale(1.1,.86);transition-duration:.07s}
+#start{animation:ctaBreath 2.6s cubic-bezier(.45,0,.3,1) infinite}
+#start:hover,#start:focus-visible,#start:active{animation:none}
+@keyframes ctaBreath{0%,62%,100%{transform:scale(1,1)}70%{transform:scale(1.06,.93)}78%{transform:scale(.97,1.05)}86%{transform:scale(1.015,.99)}}
+@media (prefers-reduced-motion:reduce){button.go,.ghost,.devgrid button{transition:none}#start{animation:none}}

@@ -31,7 +31,7 @@ function skateKey(k){
 }
 function bikeCrash(why){
   const b=bike;if(b.inv>0||godMode){b.trick=null;return}
-  lives--;sfx.hurt();shake=.4;b.inv=1.6;b.speed=6;b.trick=null;b.airTricks=[];b.combo=1;b.air=0;b.crashT=.6;
+  lives--;sfx.hurt();shake=.4;rumble(.9,.6,320);{const P=skP(b.lx,0,SK.PD);FX.burst('dust',P.x,P.y,{n:22,spread:20,speed:[60,220],size:[8,16]})}b.inv=1.6;b.speed=6;b.trick=null;b.airTricks=[];b.combo=1;b.air=0;b.crashT=.6;
   popups.push({x:W/2,y:300,text:'OUCH!',t:1,c:'#ff5d8f',scr:true});
   banner={text:why,t:1.6};
   if(lives<=0)gameOver(why);
@@ -257,6 +257,7 @@ defineLevel({
   dev:'Skate', devTitle:'NIVEAU 3 : SKATE',
   track:'d', hour:()=>1+clamp(bike?bike.z/BIKE_LEN:0,0,1)*1.9,
   place:()=>`Chez Michel : ${Math.max(0,Math.round(BIKE_LEN-(bike?bike.z:0)))} m`,
+  fxTick:dt=>{const b=bike;if(!b||b.air>0||b.crashT>0||b.speed<9)return;const P=skP(b.lx,0,SK.PD);for(let i=fxRate(b.speed*.9,dt);i>0;i--)FX.emit('dust',P.x+rnd(-P.s*.2,P.s*.2),P.y,{vy:-20,speed:[10,40],size:[3,7],alpha:.3,life:[.3,.6]})},   // dust under the wheels
   start:setupBike,
   touchLabels:{ESPACE:'OLLIE'},
   update:updateBike, draw:drawBikeLevel,

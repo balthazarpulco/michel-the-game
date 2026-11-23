@@ -10,6 +10,7 @@
 import { autoDetectRenderer, CanvasSource, Container, Sprite, Texture, type Renderer } from 'pixi.js';
 import { Effects, type FrameInfo } from './effects';
 import { Particles } from './particles';
+import { DotWipe } from './transition';
 
 export type { FrameInfo };
 
@@ -56,6 +57,7 @@ export class Gfx {
   private hud: CanvasLayer;
   private effects: Effects;
   private root = new Container();
+  private wipeFx = new DotWipe();
 
   private constructor(private renderer: Renderer, private cv: HTMLCanvasElement) {
     this.view = renderer.canvas as HTMLCanvasElement;
@@ -63,7 +65,7 @@ export class Gfx {
     this.hud = new CanvasLayer(this.hudCanvas);
     this.effects = new Effects(this.world.sprite);
     this.fx = new Particles();
-    this.root.addChild(this.effects.worldLayer, this.fx.layer, this.hud.sprite);
+    this.root.addChild(this.effects.worldLayer, this.fx.layer, this.hud.sprite, this.wipeFx.g);
   }
 
   static async create(cv: HTMLCanvasElement): Promise<Gfx | null> {
@@ -106,6 +108,9 @@ export class Gfx {
     if (this.renderer.width !== w || this.renderer.height !== h) this.renderer.resize(w, h);
   }
 
+  /** Level transition: a halftone dot wipe that reveals the new level. */
+  wipe() { this.wipeFx.start(); }
+
   /** Called once per frame, after the game drew both 2D layers. */
   present(f: FrameInfo) {
     const w = this.cv.width, h = this.cv.height;
@@ -114,6 +119,7 @@ export class Gfx {
     this.hud.sync();
     this.effects.update(f, w, h);
     this.fx.update(f);
+    this.wipeFx.update(f.dt, f.scale);
     this.renderer.render(this.root);
   }
 }

@@ -200,6 +200,7 @@ defineLevel({
   dev:'Le studio', devTitle:'LE STUDIO',
   track:'a', hour:()=>17.02,
   place:()=>'Au studio',
+  fxTick:dt=>fxMotes(dt,1.4,0,W,60,360,[0xffffff,0xfff3d6]),   // dust in the window light
   start:setupOffice,
   canPause:()=>!(office&&office.intro>0),
   frozen:dt=>{if(office&&(office.intro>0||office.caughtT>0)){updateOfficeFrozen(dt);return true}return false},
