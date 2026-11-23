@@ -1,0 +1,21 @@
+{
+  "name": "michel-the-game",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "assets": "node tools/assets.mjs",
+    "dev": "npm run assets && vite",
+    "build": "npm run assets && tsc --noEmit && vite build",
+    "build:test": "npm run assets && vite build --mode test --outDir dist-test",
+    "preview": "vite preview",
+    "smoke": "python3 tools/smoke.py"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "magic-string": "^1.4.5",
+    "sharp": "^0.35.5",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.8"
+  }
+}

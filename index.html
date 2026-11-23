@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Une nuit avec Michel</title>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="overlay" id="loadOv" role="progressbar" aria-label="Chargement" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <div class="kicker">VENDREDI · 16 H 59</div>
+    <h2>MICHEL SE PRÉPARE…</h2>
+    <div class="loadBar"><i id="loadFill"></i></div>
+    <div class="loadPct" id="loadPct">0 %</div>
+  </div>
+  <canvas id="c" width="960" height="540" aria-label="Jeu La Run à Michel"></canvas>
+  <div class="icons"><button class="icon" id="pauseBtn" type="button" aria-label="Pause" title="Pause (P)"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></button></div>
+  <div class="icons bot"><button class="icon" id="mute" type="button" aria-label="Son" title="Son"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button><button class="icon" id="full" type="button" aria-label="Plein écran" title="Plein écran (F)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
+  <div class="overlay" id="title">
+    <canvas id="logoCv" width="10" height="10" hidden></canvas>
+    <h1 class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Une nuit avec Michel</h1>
+    <canvas id="logoNew" width="1100" height="720" role="img" aria-label="Une nuit avec Michel"></canvas>
+    <img id="logoBase" src="./assets/ui/logobase.webp" alt="" hidden><img id="logoFlame" src="./assets/ui/logoflame.webp" alt="" hidden>
+    <div class="diff" id="diffRow" role="radiogroup" aria-label="Difficulté">
+      <button type="button" role="radio" data-d="easy">FACILE</button><button type="button" role="radio" data-d="medium">MEDIUM</button><button type="button" role="radio" data-d="hard">HARD</button>
+    </div>
+    <div class="diffNote" id="diffNote"></div>
+    <button class="go" id="start" type="button"><span class="lbl2">JOUER</span></button>
+    <div class="trow"><button class="ghost" id="showBoard" type="button">CLASSEMENT</button><button class="ghost" id="showChap" type="button">CHAPITRES</button><button class="ghost" id="showTroph" type="button">TROPHÉES <span id="trophCount"></span></button></div>
+  </div>
+  <div class="overlay" id="chapOv" hidden>
+    <div class="board troph"><h3>CHAPITRES <small>débloqués en jouant</small></h3><div class="tgrid" id="chapGrid"></div></div>
+    <button class="ghost" id="closeChap" type="button">FERMER</button>
+  </div>
+  <div class="overlay" id="trophOv" hidden>
+    <div class="board troph"><h3>TROPHÉES <small id="trophCount2"></small></h3><div class="tgrid" id="trophGrid"></div></div>
+    <button class="ghost" id="closeTroph" type="button">FERMER</button>
+  </div>
+  <div class="overlay" id="boardOv" hidden>
+    <div class="board"><h3>CLASSEMENT</h3><div class="tabs" data-tabs></div><ol id="boardList2"></ol><div class="note" id="boardNote2"></div></div>
+    <button class="ghost" id="closeBoard" type="button">FERMER</button>
+  </div>
+  <div class="overlay" id="over" hidden>
+    <div class="endgrid">
+      <div class="endcol">
+        <div class="kicker" id="reason">TU ES RENTRÉ CHEZ POUTINEVILLE</div>
+        <h2 id="overTitle">C'EST FINI,<br>MON MICHEL</h2>
+        <div class="score-big" id="finalScore">0</div>
+        <div class="legend" id="finalStats"></div>
+        <button class="go" id="contBtn" type="button">REPRENDRE · 2 VIES</button>
+        <button class="ghost" id="again" type="button">RECOMMENCER LA PARTIE</button>
+      </div>
+      <div class="board">
+        <form id="nameForm" autocomplete="off">
+          <label class="lbl" for="nameIn">Ton nom pour le classement (6 lettres max)</label>
+          <div class="namerow"><input id="nameIn" name="nameIn" maxlength="6" spellcheck="false" placeholder="MICHEL"><button id="nameBtn" type="submit">ENREGISTRER</button></div>
+        </form>
+        <h3>CLASSEMENT</h3>
+        <div class="tabs" data-tabs></div>
+        <ol id="boardList"></ol>
+        <div class="note" id="boardNote"></div>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="pauseOv" hidden>
+    <div class="kicker">P OU ÉCHAP POUR REPRENDRE</div>
+    <h2>PAUSE CLOPE</h2>
+    <button class="go" id="resumeBtn" type="button">REPRENDRE</button>
+    <button class="ghost" id="setBtn" type="button">SETTINGS</button>
+    <button class="ghost" id="restartBtn" type="button">↺ RECOMMENCER LA PARTIE</button>
+  </div>
+  <div class="overlay" id="setOv" hidden>
+    <div class="kicker">SETTINGS</div>
+    <h2 style="font-size:clamp(20px,3.6vw,40px)">CONTRÔLES</h2>
+    <div class="ctrl">
+      <span class="h">ACTION</span><span class="h">CLAVIER</span><span class="h">MANETTE</span>
+      <span>Marcher</span><span><kbd>←</kbd> <kbd>→</kbd> · <kbd>A</kbd> <kbd>D</kbd></span><span><kbd>CROIX</kbd> · <kbd>STICK G</kbd></span>
+      <span>Sauter</span><span><kbd>ESPACE</kbd> · <kbd>↑</kbd></span><span><kbd>A</kbd> (<kbd>✕</kbd> PS)</span>
+      <span>Descendre d'un balcon</span><span><kbd>↓</kbd> · <kbd>S</kbd></span><span><kbd>CROIX ↓</kbd></span>
+      <span>Sprint</span><span><kbd>MAJ</kbd></span><span><kbd>RB</kbd> · <kbd>RT</kbd> · <kbd>Y</kbd></span>
+      <span>Lancer une bière · voler · vomir</span><span><kbd>E</kbd></span><span><kbd>B</kbd> · <kbd>X</kbd></span>
+      <span>Danse avec Ginette</span><span><kbd>←</kbd><kbd>↓</kbd><kbd>↑</kbd><kbd>→</kbd></span><span><kbd>CROIX</kbd></span>
+      <span>Skate : figure</span><span><kbd>ESPACE</kbd> + flèche</span><span><kbd>A</kbd> + croix</span>
+      <span>Duel avec LD</span><span><kbd>CLIC</kbd> · <kbd>ESPACE</kbd></span><span><kbd>A</kbd></span>
+      <span>Textos</span><span><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> · <kbd>↑</kbd><kbd>↓</kbd> + <kbd>ESPACE</kbd></span><span><kbd>CROIX</kbd> + <kbd>A</kbd></span>
+      <span>Pause</span><span><kbd>P</kbd> · <kbd>ÉCHAP</kbd></span><span><kbd>START</kbd></span>
+      <span>Plein écran · mode dev</span><span><kbd>F</kbd> · <kbd>T</kbd></span><span>—</span>
+    </div>
+    <div class="legend">
+      <span>Cigarette <b>+10</b></span>
+      <span>Bière <b>+25</b></span>
+      <span>K.O. <b>+50</b></span>
+      <span>10 clopes <b>+1 vie</b></span>
+      <span>Boisson énergisante <b>+3 vies</b></span>
+    </div>
+    <div class="note" id="padNote" style="font-size:12px;opacity:.75">Branche une manette (Xbox, PlayStation…) et appuie sur un bouton.</div>
+    <button class="go" id="setBack" type="button">RETOUR</button>
+  </div>
+  <div class="overlay dev" id="dev" hidden>
+    <div class="kicker">MODE DEV · T POUR FERMER</div>
+    <div class="devgrid">
+      <button type="button" data-lv="office">1 · Le studio</button>
+      <button type="button" data-lv="1">2 · Saint-Laurent</button>
+      <button type="button" data-lv="boss">3 · Boss : ta blonde</button>
+      <button type="button" data-lv="2">4 · Le boulevard</button>
+      <button type="button" data-lv="joint">5 · Duel avec LD</button>
+      <button type="button" data-lv="dance">6 · Boss : Ginette</button>
+      <button type="button" data-lv="texto">7 · Textos</button>
+      <button type="button" data-lv="limo">8 · Limousine</button>
+      <button type="button" data-lv="bj">9 · Blackjack</button>
+      <button type="button" data-lv="flip">10 · Flipper</button>
+      <button type="button" data-lv="bike">11 · Skate</button>
+      <button type="button" data-lv="3">12 · Chez Michel</button>
+    </div>
+    <div class="devgrid">
+      <button type="button" data-act="beer">+5 bières</button>
+      <button type="button" data-act="life">+3 vies</button>
+      <button type="button" data-act="god" id="devGod">Invincible : non</button>
+    </div>
+    <div class="devgrid">
+      <button type="button" data-act="restart" id="devRestart">↺ Recommencer la partie (R)</button>
+    </div>
+  </div>
+  <img id="logoSrc" src="./assets/ui/logosrc.webp" alt="" hidden>
+  <div id="vidOv" hidden>
+    <video id="introVid" playsinline preload="auto"><source src="intro.webm" type="video/webm"><source src="intro.mp4" type="video/mp4"></video>
+    <button id="vidSkip" type="button">PASSER ▸</button>
+  </div>
+  <div id="outOv" class="vidov" hidden>
+    <video id="outVid" playsinline preload="none"><source src="outro.webm" type="video/webm"><source src="outro.mp4" type="video/mp4"></video>
+    <button id="outSkip" type="button" class="ghost">PASSER ▸</button>
+  </div>
+  <div class="overlay" id="card" hidden>
+    <div class="kicker" id="cardKicker"></div>
+    <h2 id="cardTitle"></h2>
+    <p id="cardText"></p>
+    <button class="go" id="cardBtn" type="button">GO</button>
+  </div>
+  <div class="touch" id="touch" hidden><div class="grp L" id="tpL"></div><div class="grp R" id="tpR"></div></div>
+  <div class="rotate" id="rotateOv"><div class="ph">📱</div><b>Tourne ton téléphone</b><span>Michel se joue à l'horizontale</span></div>
+</div>
+<div class="keys"><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> bouger · <kbd>↓</kbd> descendre · <kbd>E</kbd> lancer</div>
+<script type="module" src="./src/main.ts"></script>
+</body>
+</html>

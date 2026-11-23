@@ -1,0 +1,6 @@
+{
+  "_comment": "Legacy game code: these files share ONE scope (concatenated in this order into boot() by tools/vite-legacy-game.ts). Order matters for top-level code.",
+  "files": [
+    "legacy/game.js"
+  ]
+}
