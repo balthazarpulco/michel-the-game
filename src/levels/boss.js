@@ -137,3 +137,19 @@ function drawBoss(){
   if(b.state==='stun'){for(let i=0;i<3;i++){const a=t*4+i*2.1;star(bc+Math.cos(a)*44,hy+6+Math.sin(a)*10)}}
   if(down){ctx.font='22px "Lilita One", Inter, Arial';ctx.fillStyle='#ff5d8f';ctx.textAlign='center';ctx.fillText('♥',bc+Math.sin(t*2)*20,hy-10-((t*30)%40))}
 }
+
+// ---------- registre ----------
+defineLevel({
+  id:'boss', n:3,
+  name:'TA BLONDE', stage:'Ta blonde', chapter:'Ta blonde',
+  dev:'Boss : ta blonde', devTitle:'BOSS : TA BLONDE',
+  track:'a', hour:()=>19.6,
+  place:()=>'Au dépanneur',
+  start:setupBoss,
+  scene:drawArena, night:0,
+  keys:[['← →','bouger'],['ESPACE','sauter'],['↑','monter'],['E','lancer une bière']],
+  legend:true,
+  tuto:{from:'Ma blonde ❤️',av:'#f2c14e',msgs:['T\'es où là??','Je te vois. Bouge pas.'],tips:[['E','lance-lui des bières'],['ESPACE','saute sur sa tête'],['↑','étagère et comptoir pour esquiver ses cafés']]},
+  story:'Ta blonde t\'attend devant le frigo à bière, les bras croisés. Lance-lui des bières pour la calmer pis esquive ses cafés.',
+  ctrl:[...CTRL_MOVE,['Descendre de l\'étagère','↓ · S','CROIX ↓'],['Lancer une bière','E','B · X']],
+});

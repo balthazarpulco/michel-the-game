@@ -1,17 +1,11 @@
-// update(dt) : la logique de chaque frame, par niveau.
+// update(dt) : la logique de chaque frame. Les mini-jeux ont leur update (registre) ; sinon, le platformer commun (rues, boss, studio, chez Michel).
 // (Code partagé : tous les fichiers listés dans src/game-order.json forment une seule portée.)
 
 function update(dt){
   t+=dt;
-  if(level==='dance'){updateDance(dt);return}
-  if(level==='bike'){updateBike(dt);return}
-  if(level==='joint'){updateJoint(dt);return}
-  if(level==='texto'){updateTexto(dt);return}
-  if(level==='limo'){updateLimo(dt);return}
-  if(level==='bj'){updateBJ(dt);return}
-  if(level==='flip'){updateFlip(dt);return}
-  if(level==='office'&&office&&(office.intro>0||office.caughtT>0)){updateOfficeFrozen(dt);return}
-  if(level===3&&home&&(home.wake||home.win)){updateHomeEnd(dt);return}
+  const D=LEVELS[level];
+  if(D.update){D.update(dt);return}       // mini-games run their own frame
+  if(D.frozen&&D.frozen(dt))return;       // platformer cut-scenes (office intro, getting caught, waking up…)
   const p=player;
   jumpBuf=Math.max(0,jumpBuf-dt);
   p.inv=Math.max(0,p.inv-dt);p.dropT=Math.max(0,p.dropT-dt);p.land=Math.max(0,p.land-dt);

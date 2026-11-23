@@ -232,3 +232,24 @@ function drawGinette(D,pulse){
   ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(0,-V.dy+4,70,10,0,0,7);ctx.fill();
   ctx.scale(-1,1);ctx.rotate(V.rot);ctx.scale(sx,sy);drawRig(R,215,ang);ctx.restore();
 }
+
+// ---------- registre ----------
+defineLevel({
+  id:'dance', n:6,
+  name:'GINETTE', stage:'Ginette', chapter:'Ginette',
+  dev:'Boss : Ginette', devTitle:'BOSS : GINETTE',
+  track:'c', hour:()=>.5,
+  place:()=>'Piste de danse',
+  start:setupDance,
+  afterPhone:()=>{stopDanceMusic();setupDance()},   // the chart starts when the phone closes
+  canPause:()=>false,
+  update:updateDance, draw:drawDance,
+  keydown:e=>{
+    const dk={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'j',KeyW:'j',Space:'j',ArrowDown:'d',KeyS:'d'}[e.code];
+    if(dk){e.preventDefault();if(!e.repeat)danceHit(dk);return true}
+    return e.code==='KeyP'||e.code==='Escape'},   // P / Échap : pas de pause pendant la danse
+  pad:()=>dance&&!dance.done?'dance':'none',
+  tuto:{from:'Ginette',av:'#ff9ad5',msgs:['Personne sort sans danser, mon beau 💃'],tips:[['← ↓ ↑ →','quand la flèche touche la cible'],['60 %','des pas pour sortir']]},
+  story:'Ginette, le patron, bloque la sortie : personne ne repart sans danser avec lui. Suis le rythme!',
+  ctrl:[['Les pas','← ↓ ↑ →','CROIX']],
+});

@@ -16,7 +16,7 @@ function endIntro(){
   if(state!=='video')return;
   clearTimeout(introTimer);try{introVid.pause()}catch(e){}
   vidOv.hidden=true;
-  openPhone({kicker:'VENDREDI · 17 H',title:'LE STUDIO',text:LV_STORY.office,btn:'JOUER'});
+  openPhone({kicker:'VENDREDI · 17 H',title:'LE STUDIO',text:LEVELS.office.story,btn:'JOUER'});
 }
 introVid.addEventListener('ended',endIntro);
 // ending: Michel made it to bed — play the outro film, then the victory screen

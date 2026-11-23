@@ -27,7 +27,7 @@ function hud(n){
   ctx.fillText(`${String(hh).padStart(2,'0')}h${String(mm).padStart(2,'0')}`,W-136,30);
   const left=level===3?Math.max(0,Math.floor((LEN[3]-player.x)/10)):goal?Math.max(0,Math.floor((goal.x-player.x)/10)):Math.max(0,Math.floor((LEN[level]+500-player.x)/10));
   ctx.font='600 10px Inter, Arial';ctx.fillStyle='#f4e7c8';
-  ctx.fillText(level==='limo'?'En limousine':level==='bj'||level==='flip'?'Au Casino':level==='office'?'Au studio':level==='joint'?'Fond du bar':level==='texto'?'Devant le bar':level==='boss'?'Au dépanneur':level==='dance'?'Piste de danse':level==='bike'?`Chez Michel : ${Math.max(0,Math.round(BIKE_LEN-(bike?bike.z:0)))} m`:level===3?`Ton lit : ${left} m`:level===1?`Dépanneur : ${left} m`:`Chez Ginette : ${left} m`,W-136,49);
+  ctx.fillText(LEVELS[level].place(left),W-136,49);
   if(level===3&&home){
     const bw=280,bx=W/2-bw/2;
     ctx.fillStyle='rgba(32,13,56,.85)';pg(bx-14,12,bw+28,50);ctx.fill();

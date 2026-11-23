@@ -2,6 +2,7 @@
  "_comment": "Game code: these plain-JS files share ONE scope; tools/vite-legacy-game.ts concatenates them in this order into boot(). Function declarations can live in any file; top-level statements (const/let, listeners) run in this order.",
  "files": [
   "core/constants.js",
+  "core/levels.js",
   "data/assets.js",
   "data/cast.js",
   "render/rig.js",

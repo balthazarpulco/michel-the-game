@@ -89,3 +89,19 @@ function drawFlip(){const F=FL;
   hud(0);mgBanner();
   {ctx.textAlign='center';ctx.font='700 12px Inter, Arial';ctx.fillStyle='#fff4dc';ctx.strokeStyle=INK;ctx.lineWidth=4;const s=IS_TOUCH?'TOUCHE À GAUCHE / À DROITE POUR LES PALETTES':'← → PALETTES · ESPACE LES DEUX · CLIC GAUCHE / DROITE';ctx.strokeText(s,W/2,H-10);ctx.fillText(s,W/2,H-10)}
 }
+
+// ---------- registre ----------
+defineLevel({
+  id:'flip', n:10,
+  name:'LE FLIPPER', stage:'Flipper', chapter:'Le flipper',
+  dev:'Flipper', devTitle:'FLIPPER',
+  track:'d', hour:()=>1.4,
+  place:()=>'Au Casino',
+  start:setupFlip,
+  update:updateFlip, draw:drawFlip,
+  pointer:(e,x)=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}MP.ids[e.pointerId]=x<W/2?'l':'r';MP.l=Object.values(MP.ids).includes('l');MP.r=Object.values(MP.ids).includes('r')},
+  pad:()=>'none',
+  tuto:{from:'Delachaud',av:'#ff9a1f',msgs:['FLIPPER!!! Fais exploser le score 🎰'],tips:[['← →','palettes'],['ESPACE','les deux palettes'],['CANETTE','multiball + ralenti'],['JACKPOT','en haut : +1000']]},
+  story:'Delachaud t\'amène au flipper. Fais le plus gros score avant que l\'argent manque!',
+  ctrl:[['Palette gauche / droite','← →','CROIX'],['Les deux palettes','ESPACE','A']],
+});

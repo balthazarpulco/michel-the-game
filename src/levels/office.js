@@ -192,3 +192,21 @@ function drawPhoneIntro(){
   // phone buzz
   if(o.intro>4.4&&Math.random()<.3)beep(140,120,.05,'square',.03);
 }
+
+// ---------- registre ----------
+defineLevel({
+  id:'office', n:1,
+  name:'LE STUDIO', stage:'Bureau', chapter:'Le studio',
+  dev:'Le studio', devTitle:'LE STUDIO',
+  track:'a', hour:()=>17.02,
+  place:()=>'Au studio',
+  start:setupOffice,
+  canPause:()=>!(office&&office.intro>0),
+  frozen:dt=>{if(office&&(office.intro>0||office.caughtT>0)){updateOfficeFrozen(dt);return true}return false},
+  scene:drawOffice, night:0,
+  pad:()=>office&&(office.intro>0||office.caughtT>0)?'none':'office',
+  keys:[['← →','marcher'],['ESPACE','sauter'],['↓','escalier'],['TIENS E','voler le vin']],
+  tuto:{from:'LD',av:'#c98a3b',msgs:['Yo! 5 à 7 chez Ginette ce soir 🍻','>C\'est bon, j\'arrive! J\'vais au dép avant 🍺'],tips:[['← →','marcher'],['ESPACE','sauter'],['↓','prendre l\'escalier (porte à droite)'],['TIENS E','voler le vin quand Dulac a le dos tourné'],['PLANTES','cache-toi quand Dulac revient vers toi']]},
+  story:'17 h : la journée est faite, LD attend Michel pour la soirée. Descends par la porte à droite, faufile-toi dans la cuisine, vole le pinot de Dulac dans le frigo, pis sors par la porte noire.',
+  ctrl:[...CTRL_MOVE,['Prendre l\'escalier','↓ · S','CROIX ↓'],['Voler le vin','tiens E','tiens B']],
+});

@@ -50,3 +50,27 @@ function drawBJ(){const B=BJ;
   mgDrawParts();hud(0);mgBanner();
   {ctx.textAlign='center';ctx.font='700 12px Inter, Arial';ctx.fillStyle='#fff4dc';ctx.strokeStyle=INK;ctx.lineWidth=4;const s=IS_TOUCH?'TOUCHE TIRER OU RESTER':'← → CHOISIR · ESPACE OU CLIC · 1 TIRER · 2 RESTER';ctx.strokeText(s,W/2,H-10);ctx.fillText(s,W/2,H-10)}}
 function bjClick(x,y){const B=BJ;if(!B)return;B.boxes.forEach((b,i)=>{if(x>b.x&&x<b.x+b.w&&y>b.y&&y<b.y+b.h)bjAct(i)})}
+
+// ---------- registre ----------
+defineLevel({
+  id:'bj', n:9,
+  name:'BLACKJACK', stage:'Blackjack', chapter:'Blackjack',
+  dev:'Blackjack', devTitle:'BLACKJACK',
+  track:'d', hour:()=>1.25,
+  place:()=>'Au Casino',
+  start:setupBJ,
+  update:updateBJ, draw:drawBJ,
+  keydown:e=>{
+    if(!BJ)return false;
+    if(e.code==='ArrowLeft'||e.code==='KeyA'){e.preventDefault();BJ.sel=0;return true}
+    if(e.code==='ArrowRight'||e.code==='KeyD'){e.preventDefault();BJ.sel=1;return true}
+    if(e.key==='1'||e.key==='2'){e.preventDefault();bjAct(+e.key-1);return true}
+    if(['Space','Enter','KeyE','ArrowUp'].includes(e.code)){e.preventDefault();if(!e.repeat)bjAct(BJ.sel);return true}
+    return false},
+  pointer:(e,x,y)=>{e.preventDefault();bjClick(x,y)},
+  pad:()=>'none',
+  keys:[['1','tirer'],['2','rester'],['CLIC','choisir']],
+  tuto:{from:'Delachaud',av:'#ff9a1f',msgs:['Une main. Tout ce que t\'as! 🃏'],tips:[['TIRER','une carte de plus'],['RESTER','le croupier joue'],['21','sans dépasser'],['GAGNE','= plus de temps au flipper']]},
+  story:'Au Casino, Delachaud te met des jetons dans les mains : une main de blackjack. Approche-toi de 21 sans dépasser.',
+  ctrl:[['Choisir Tirer / Rester','← →','CROIX'],['Valider','ESPACE · E','A · B'],['Tirer · Rester direct','1 · 2','—']],
+});

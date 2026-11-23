@@ -54,24 +54,17 @@ function render(){
   if(state==='phone'&&phone)drawPhone();
 }
 function renderBase(){
-  if(level==='dance'){ctx.setTransform(scale,0,0,scale,0,0);drawDance();drawNoise();return}
-  if(level==='bike'){ctx.setTransform(scale,0,0,scale,0,0);drawBikeLevel();drawNoise();return}
-  if(level==='joint'){ctx.setTransform(scale,0,0,scale,0,0);drawJoint();drawNoise();return}
-  if(level==='texto'){ctx.setTransform(scale,0,0,scale,0,0);drawTexto();drawNoise();return}
-  if(level==='limo'){ctx.setTransform(scale,0,0,scale,0,0);drawLimo();drawNoise();return}
-  if(level==='bj'){ctx.setTransform(scale,0,0,scale,0,0);drawBJ();drawNoise();return}
-  if(level==='flip'){ctx.setTransform(scale,0,0,scale,0,0);drawFlip();drawNoise();return}
+  const D=LEVELS[level];
+  if(D.draw){ctx.setTransform(scale,0,0,scale,0,0);D.draw();drawNoise();return}
   renderWorld();drawNoise();
 }
 function renderWorld(){
-  const n=level==='boss'||level==='office'?0:level===3?.82:nightAt(camX+W/2);
+  const D=LEVELS[level],n=D.night!=null?D.night:nightAt(camX+W/2);
   lights=[];
   ctx.setTransform(scale,0,0,scale,0,0);
   if(shake>0)ctx.translate(rnd(-5,5)*shake*3,rnd(-5,5)*shake*3);
   {const dk=drunk();if(dk>0){ctx.translate(W/2,H/2);ctx.rotate(Math.sin(t*.8)*.018*dk);ctx.scale(1+.02*dk,1+.02*dk);ctx.translate(-W/2+Math.sin(t*1.1)*6*dk,-H/2)}}
-  if(level==='boss')drawArena();
-  else if(level===3)drawHome();
-  else if(level==='office')drawOffice();
+  if(D.scene)D.scene();
   else{
   drawBG(n);
   for(const f of facades)drawFacade(f,n);

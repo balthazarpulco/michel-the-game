@@ -89,3 +89,20 @@ function drawLimo(){
   {ctx.textAlign='center';ctx.font='700 12px Inter, Arial';ctx.fillStyle='#fff4dc';ctx.strokeStyle=INK;ctx.lineWidth=4;const s=IS_TOUCH?'◀ ▶ PENCHE CONTRE LE VIRAGE · VODKA POUR PRENDRE':'← → PENCHE CONTRE LE VIRAGE · E PRENDRE UN VODKA-RED BULL';ctx.strokeText(s,W/2,H-12);ctx.fillText(s,W/2,H-12)}
   mgBanner();
 }
+
+// ---------- registre ----------
+defineLevel({
+  id:'limo', n:8,
+  name:'LA LIMO DE DELACHAUD', stage:'Limousine', chapter:'La limo',
+  dev:'Limousine', devTitle:'LIMOUSINE',
+  track:'d', hour:()=>1.05,
+  place:()=>'En limousine',
+  start:setupLimo,
+  update:updateLimo, draw:drawLimo,
+  keydown:e=>{if(e.code==='Space'||e.code==='Enter'||e.code==='KeyE'){e.preventDefault();if(!e.repeat)limoDrink();return true}return false},
+  pointer:e=>{e.preventDefault();limoDrink()},
+  pad:()=>LM&&!LM.done?'limo':'none',
+  tuto:{from:'Delachaud',av:'#ff9a1f',msgs:['MICHEL!! J\'t\'envoie une limo 🥂','Casino ce soir, c\'est moi qui paye!'],tips:[['← →','penche contre le virage'],['VERRE','garde-le droit, sinon mal de cœur'],['E','prendre un vodka-Red Bull (+ points, + tangue)']]},
+  story:'Delachaud t\'envoie une limo pour le Casino. Garde ton verre droit dans les virages pis prends les vodka-Red Bull qu\'il te tend.',
+  ctrl:[['Pencher dans le virage','← → · A D','CROIX · STICK\u00a0G'],['Prendre un vodka-Red Bull','E · ESPACE','B · A']],
+});

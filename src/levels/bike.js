@@ -249,3 +249,25 @@ function drawBikeLevel(){
     const sub=banner.sub||(lives>0?`−1 vie · il t'en reste ${lives}`:'Plus de vies');ctx.font='600 14px Inter, Arial';ctx.textAlign='center';ctx.lineWidth=4;ctx.strokeStyle=INK;ctx.strokeText(sub,W/2,190);ctx.fillStyle='#fff4dc';ctx.fillText(sub,W/2,190);ctx.globalAlpha=1;
   }
 }
+
+// ---------- registre ----------
+defineLevel({
+  id:'bike', n:11,
+  name:'RETOUR EN SKATE', stage:'En skate', chapter:'En skate',
+  dev:'Skate', devTitle:'NIVEAU 3 : SKATE',
+  track:'d', hour:()=>1+clamp(bike?bike.z/BIKE_LEN:0,0,1)*1.9,
+  place:()=>`Chez Michel : ${Math.max(0,Math.round(BIKE_LEN-(bike?bike.z:0)))} m`,
+  start:setupBike,
+  touchLabels:{ESPACE:'OLLIE'},
+  update:updateBike, draw:drawBikeLevel,
+  keydown:e=>{
+    const ak={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'j',KeyW:'j',ArrowDown:'d',KeyS:'d'}[e.code];
+    if(ak&&!e.repeat&&skateKey(ak)){e.preventDefault();return true}
+    if(ak==='l'||ak==='r'){e.preventDefault();if(!e.repeat)bikeLane(ak==='l'?-1:1);return true}
+    if(e.code==='Space'||e.code==='KeyE'){e.preventDefault();if(!e.repeat)bikeHop();return true}
+    return false},
+  pad:()=>'bike',
+  tuto:{from:'LD',av:'#c98a3b',msgs:['Prends mon skate, je dors ici 😴'],tips:[['← →','changer de voie'],['ESPACE','ollie : saute les cônes, trous pis barrières'],['↑ / ↓','pousser / freiner'],['EN L\'AIR + FLÈCHE','faire une figure'],['RAMPE','gros saut : enchaîne les figures']]},
+  story:'LD dort dans les toilettes. Prends son skate pis rentre chez vous : évite les chars, les cônes pis les trous.',
+  ctrl:[['Changer de voie','← →','CROIX'],['Ollie','ESPACE','A'],['Pousser / freiner','↑ / ↓','CROIX ↑ ↓'],['Figure (en l\'air)','ESPACE + ←↑→↓','A + CROIX']],
+});

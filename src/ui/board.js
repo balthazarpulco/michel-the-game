@@ -4,7 +4,6 @@
 // ---------- leaderboard: shared when the page's database is available, this browser's otherwise ----------
 let lbDb=null,lbShared=[],lbLocal=[],lbMine=null,lbLast=null;
 try{lbLocal=JSON.parse(localStorage.getItem('michel-board')||'[]')}catch(e){lbLocal=[]}
-const STAGE_NAME={limo:'Limousine',bj:'Blackjack',flip:'Flipper',office:'Bureau',1:'Mile End',boss:'Ta blonde',2:'Boulevard',joint:'Duel LD',dance:'Ginette',texto:'Textos',bike:'En skate',3:'Chez Michel'};
 function cleanName(v){return String(v||'').toUpperCase().replace(/[^A-Z0-9ÀÂÉÈÊËÎÏÔÛÙÇ]/g,'').slice(0,6)}
 function boardRows(){
   const src=lbDb?lbShared:lbLocal;
@@ -26,7 +25,7 @@ function renderBoard(){
       const li=document.createElement('li');if(lbMine&&r.id===lbMine)li.className='me';
       const rk=document.createElement('span');rk.className='rk';rk.textContent=(i+1)+'.';
       const nm=document.createElement('span');nm.className='nm';nm.textContent=cleanName(r.name)||'?';
-      const st=document.createElement('small');st.textContent=r.win?'Bonne nuit':(STAGE_NAME[r.stage]||'');nm.appendChild(st);
+      const st=document.createElement('small');st.textContent=r.win?'Bonne nuit':lvStage(r.stage);nm.appendChild(st);
       const sc=document.createElement('span');sc.className='sc';sc.textContent=Math.round(r.score).toLocaleString('fr-CA');
       li.append(rk,nm,sc);ol.appendChild(li);
     });

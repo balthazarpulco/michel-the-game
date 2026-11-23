@@ -11,6 +11,8 @@ function start(){
 document.getElementById('start').onclick=start;
 document.getElementById('again').onclick=start;
 document.getElementById('contBtn').onclick=continueLevel;
+setDiff(diff);diffReady=true;renderBoard();
+buildDevGrid();
 score=0;cigs=0;beers=0;lives=3;ammo=3;koCount=0;startLevel(1);
 // title screen: no enemies near spawn so the attract mode is calm
 enemies=[];

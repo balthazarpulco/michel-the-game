@@ -31,14 +31,7 @@ function dpad(){
 function col(...els){const c=document.createElement('div');c.className='col';c.append(...els);return c}
 function padFor(){
   if(!IS_TOUCH||state!=='play')return 'none';
-  if(level==='joint'||level==='texto')return 'none';
-  if(level==='dance')return dance&&!dance.done?'dance':'none';
-  if(level==='bike')return 'bike';
-  if(level==='bj'||level==='flip')return 'none';
-  if(level==='limo')return LM&&!LM.done?'limo':'none';
-  if(level===3)return home&&(home.wake||home.win)?'none':'home';
-  if(level==='office')return office&&(office.intro>0||office.caughtT>0)?'none':'office';
-  return 'plat';
+  const D=LEVELS[level];return D.pad?D.pad():'plat';
 }
 function buildPad(kind){
   // release anything still held before swapping buttons
@@ -67,11 +60,7 @@ cv.addEventListener('pointerdown',e=>{
   if(state==='phone'){e.preventDefault();closePhone();return}
   if(state!=='play')return;
   const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;
-  if(level==='joint'){e.preventDefault();jointPuff()}
-  else if(level==='texto'){e.preventDefault();textoClick(x,y)}
-  else if(level==='limo'){e.preventDefault();limoDrink()}
-  else if(level==='bj'){e.preventDefault();bjClick(x,y)}
-  else if(level==='flip'){e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}MP.ids[e.pointerId]=x<W/2?'l':'r';MP.l=Object.values(MP.ids).includes('l');MP.r=Object.values(MP.ids).includes('r')}
+  const D=LEVELS[level];if(D.pointer)D.pointer(e,x,y);
 });
 const cvXY=e=>{const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H]};
 const cvUp=e=>{delete MP.ids[e.pointerId];MP.l=Object.values(MP.ids).includes('l');MP.r=Object.values(MP.ids).includes('r')};

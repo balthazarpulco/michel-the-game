@@ -147,3 +147,20 @@ function drawHomeActors(){
     if(h.sayT>0)bubble(h.say,bx-40,by-(h.wake?150:60),true);
   }
 }
+
+// ---------- registre ----------
+defineLevel({
+  id:3, n:12,
+  name:'CHEZ MICHEL', stage:'Chez Michel', chapter:'Chez Michel',
+  dev:'Chez Michel', devTitle:'NIVEAU 4',
+  track:'e', hour:x=>3+clamp(x/HOME_LEN,0,1)*.4,
+  place:left=>`Ton lit : ${left} m`,
+  start:setupHome,
+  touchLabels:{E:'VOMIR',MAJ:'COURIR'},
+  frozen:dt=>{if(home&&(home.wake||home.win)){updateHomeEnd(dt);return true}return false},
+  scene:drawHome, night:.82,
+  pad:()=>home&&(home.wake||home.win)?'none':'home',
+  tuto:{from:'Ma blonde ❤️',av:'#f2c14e',msgs:['zzz'],tips:[['← →','marche doucement'],['MAJ','courir = bruit'],['E','vomir : 5 s sobre'],['CHIEN','il jappe si tu le touches'],['CRIK','planche qui craque : saute par-dessus']]},
+  story:'3 h du matin. Ta blonde dort au fond de l\'appart. Passe par le divan, le foyer pis le frigo pour éviter le chien pis les planches qui craquent, sans rien faire tomber. Attention : sauter de trop haut, ça fait du bruit.',
+  ctrl:[['Marcher doucement','← → · A D','CROIX · STICK\u00a0G'],['Sauter','ESPACE · ↑','A'],['Courir (fait du bruit)','MAJ','RB · RT · Y'],['Vomir','E','B · X']],
+});

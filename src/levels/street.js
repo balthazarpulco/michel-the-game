@@ -156,3 +156,46 @@ function doAct(e,dt){
   if(e.actDur<=0){e.act=null;e.actT=rnd(5,11)}
 }
 function splash(x,y){for(let i=0;i<10;i++)parts.push({x,y,vx:rnd(-150,150),vy:rnd(-260,-60),life:.6,max:.6,c:pick(['#6b4226','#8a5a3b','#f3e9d2']),r:rnd(2,5),g:900})}
+
+// the street levels start here (called by startLevel, after the common reset)
+function setupStreet(l){
+  if(l!==1)addFacade({x:-40,w:300,h:300,kind:'triplex'});
+  for(let i=0;i<4;i++)addItem(330+i*60,GROUND-40,i===3?'beer':'cig');
+  genX=l===1?930:560;
+  // Mile End: the street opens on Ribotti Vintage, right next to the office
+  // Michel walks out of Ribotti Vintage's door, onto boulevard Saint-Laurent
+  if(l===1){const fh=260,fw=Math.round(FAC.ribotti.w*fh/FAC.ribotti.h),fx=-20;addFacade({x:fx,w:fw,h:fh,kind:'img',img:'ribotti',glow:[[.27,.27,.5,.5]]});
+    facades.push({x:fx+fw+6,w:70,h:250,kind:'stsign'});lamps.push(fx+fw+140);genX=fx+fw+90;
+    player.x=fx+fw*.858-player.w/2;player.facing=1;doorOut={x:fx+fw*.808,w:fw*.1,y:GROUND-fh*.62,h:fh*.6,t:1.2}}
+  while(genX<W*2.5&&!genDone)genChunk();
+}
+
+// ---------- registre ----------
+defineLevel({
+  id:1, n:2,
+  name:'BOULEVARD SAINT-LAURENT', stage:'Mile End', chapter:'Boul. Saint-Laurent',
+  dev:'Saint-Laurent', devTitle:'NIVEAU 1',
+  track:'a', hour:x=>14+clamp(x/LEN[1],0,1)*5.6,
+  place:left=>`Dépanneur : ${left} m`,
+  start:()=>setupStreet(1),
+  keys:[['← →','bouger'],['ESPACE','sauter'],['E','lancer une bière'],['MAJ','sprint']],
+  legend:true,
+  tuto:{from:'LD',av:'#c98a3b',msgs:['Arrête au dép pour des bières!'],tips:[['E','lancer une bière'],['ESPACE','saute sur la tête des passants'],['TOITS','balcons, auvents pis toits : grimpe partout'],['MAJ','sprint'],['10 CLOPES','= 1 vie de plus']]},
+  story:'16 h 45, boulevard Saint-Laurent, devant Ribotti Vintage. Ramasse des clopes, évite le monde sur le trottoir pis rends-toi au dépanneur chercher de la bière.',
+  ctrl:[...CTRL_MOVE,['Descendre d\'un balcon','↓ · S','CROIX ↓'],['Sprint','MAJ','RB · RT · Y'],['Lancer une bière','E','B · X']],
+});
+
+// ---------- registre ----------
+defineLevel({
+  id:2, n:4,
+  name:'LE BOULEVARD', stage:'Boulevard', chapter:'Le boulevard',
+  dev:'Le boulevard', devTitle:'NIVEAU 2',
+  track:'b', hour:x=>(21+clamp(x/LEN[2],0,1)*4.5)%24,
+  place:left=>`Chez Ginette : ${left} m`,
+  start:()=>setupStreet(2),
+  keys:[['← →','bouger'],['ESPACE','sauter'],['E','lancer une bière'],['MAJ','sprint']],
+  legend:true,
+  tuto:{from:'LD',av:'#c98a3b',msgs:['On t\'attend chez Ginette!'],tips:[['BARS','passe sur l\'auvent : la porte te coûte une vie'],['E','une bière = un K.O.'],['⚠','trop de bières en main = tu tangues']]},
+  story:'21 h, le boulevard s\'allume. Rejoins le bar Chez Ginette sans te faire embarquer par tes collègues devant les bars.',
+  ctrl:[...CTRL_MOVE,['Descendre d\'un auvent','↓ · S','CROIX ↓'],['Sprint','MAJ','RB · RT · Y'],['Lancer une bière','E','B · X']],
+});

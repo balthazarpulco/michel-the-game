@@ -137,3 +137,26 @@ function drawTexto(){
   hud(0);
   ctx.font='900 13px Inter, Arial';ctx.textAlign='center';ctx.fillStyle='#fff4dc';ctx.strokeStyle=INK;ctx.lineWidth=4;const tip='CLIQUE UNE RÉPONSE OU 1 · 2 · 3';ctx.strokeText(tip,px+pw/2,H-8);ctx.fillText(tip,px+pw/2,H-8);
 }
+
+// ---------- registre ----------
+defineLevel({
+  id:'texto', n:7,
+  name:'LES TEXTOS', stage:'Textos', chapter:'Les textos',
+  dev:'Textos', devTitle:'TEXTOS',
+  track:'d', hour:()=>.9,
+  place:()=>'Devant le bar',
+  start:setupTexto,
+  update:updateTexto, draw:drawTexto,
+  keydown:e=>{
+    if(!(TX&&TX.phase==='answer'))return false;
+    const n='123'.indexOf(e.key);if(n>=0){e.preventDefault();answerTexto(n);return true}
+    if(e.code==='ArrowUp'||e.code==='KeyW'){e.preventDefault();TX.sel=(TX.sel+2)%3;return true}
+    if(e.code==='ArrowDown'||e.code==='KeyS'){e.preventDefault();TX.sel=(TX.sel+1)%3;return true}
+    if(e.code==='Enter'||e.code==='Space'){e.preventDefault();answerTexto(TX.sel);return true}
+    return false},
+  pointer:(e,x,y)=>{e.preventDefault();textoClick(x,y)},
+  pad:()=>'none',
+  tuto:{from:'Ma blonde ❤️',av:'#f2c14e',msgs:['Faut qu\'on se parle.'],tips:[['CLIC / 1 2 3','choisir ta réponse'],['UBER','mauvaise réponse = il approche'],['8 S','par question']]},
+  story:'Ton téléphone vibre : c\'est ta blonde. Réponds bien à ses textos, sinon elle te commande un Uber.',
+  ctrl:[['Choisir une réponse','↑ ↓','CROIX ↑ ↓'],['Répondre','1 2 3 · ESPACE','A']],
+});

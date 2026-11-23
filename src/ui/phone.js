@@ -1,37 +1,9 @@
-// Tuto « téléphone » : TUTO (messages + contrôles), LV_STORY, openPhone / closePhone / drawPhone.
+// Tuto « téléphone » : openPhone / closePhone / drawPhone (messages et contrôles : champs tuto et story du registre).
 // (Code partagé : tous les fichiers listés dans src/game-order.json forment une seule portée.)
 
-const TUTO={
-  limo:{from:'Delachaud',av:'#ff9a1f',msgs:['MICHEL!! J\'t\'envoie une limo 🥂','Casino ce soir, c\'est moi qui paye!'],tips:[['← →','penche contre le virage'],['VERRE','garde-le droit, sinon mal de cœur'],['E','prendre un vodka-Red Bull (+ points, + tangue)']]},
-  bj:{from:'Delachaud',av:'#ff9a1f',msgs:['Une main. Tout ce que t\'as! 🃏'],tips:[['TIRER','une carte de plus'],['RESTER','le croupier joue'],['21','sans dépasser'],['GAGNE','= plus de temps au flipper']]},
-  flip:{from:'Delachaud',av:'#ff9a1f',msgs:['FLIPPER!!! Fais exploser le score 🎰'],tips:[['← →','palettes'],['ESPACE','les deux palettes'],['CANETTE','multiball + ralenti'],['JACKPOT','en haut : +1000']]},
-  office:{from:'LD',av:'#c98a3b',msgs:['Yo! 5 à 7 chez Ginette ce soir 🍻','>C\'est bon, j\'arrive! J\'vais au dép avant 🍺'],tips:[['← →','marcher'],['ESPACE','sauter'],['↓','prendre l\'escalier (porte à droite)'],['TIENS E','voler le vin quand Dulac a le dos tourné'],['PLANTES','cache-toi quand Dulac revient vers toi']]},
-  1:{from:'LD',av:'#c98a3b',msgs:['Arrête au dép pour des bières!'],tips:[['E','lancer une bière'],['ESPACE','saute sur la tête des passants'],['TOITS','balcons, auvents pis toits : grimpe partout'],['MAJ','sprint'],['10 CLOPES','= 1 vie de plus']]},
-  boss:{from:'Ma blonde ❤️',av:'#f2c14e',msgs:['T\'es où là??','Je te vois. Bouge pas.'],tips:[['E','lance-lui des bières'],['ESPACE','saute sur sa tête'],['↑','étagère et comptoir pour esquiver ses cafés']]},
-  2:{from:'LD',av:'#c98a3b',msgs:['On t\'attend chez Ginette!'],tips:[['BARS','passe sur l\'auvent : la porte te coûte une vie'],['E','une bière = un K.O.'],['⚠','trop de bières en main = tu tangues']]},
-  joint:{from:'LD',av:'#c98a3b',msgs:['Le premier qui finit gagne 😏'],tips:[['CLIC / ESPACE','tirer une puff'],['TOUX','ralentis quand la jauge rougit']]},
-  dance:{from:'Ginette',av:'#ff9ad5',msgs:['Personne sort sans danser, mon beau 💃'],tips:[['← ↓ ↑ →','quand la flèche touche la cible'],['60 %','des pas pour sortir']]},
-  texto:{from:'Ma blonde ❤️',av:'#f2c14e',msgs:['Faut qu\'on se parle.'],tips:[['CLIC / 1 2 3','choisir ta réponse'],['UBER','mauvaise réponse = il approche'],['8 S','par question']]},
-  bike:{from:'LD',av:'#c98a3b',msgs:['Prends mon skate, je dors ici 😴'],tips:[['← →','changer de voie'],['ESPACE','ollie : saute les cônes, trous pis barrières'],['↑ / ↓','pousser / freiner'],['EN L\'AIR + FLÈCHE','faire une figure'],['RAMPE','gros saut : enchaîne les figures']]},
-  3:{from:'Ma blonde ❤️',av:'#f2c14e',msgs:['zzz'],tips:[['← →','marche doucement'],['MAJ','courir = bruit'],['E','vomir : 5 s sobre'],['CHIEN','il jappe si tu le touches'],['CRIK','planche qui craque : saute par-dessus']]},
-};
-setDiff(diff);diffReady=true;renderBoard();
 let phone=null;
-const LV_STORY={
-  limo:'Delachaud t\'envoie une limo pour le Casino. Garde ton verre droit dans les virages pis prends les vodka-Red Bull qu\'il te tend.',
-  bj:'Au Casino, Delachaud te met des jetons dans les mains : une main de blackjack. Approche-toi de 21 sans dépasser.',
-  flip:'Delachaud t\'amène au flipper. Fais le plus gros score avant que l\'argent manque!',
-  office:'17 h : la journée est faite, LD attend Michel pour la soirée. Descends par la porte à droite, faufile-toi dans la cuisine, vole le pinot de Dulac dans le frigo, pis sors par la porte noire.',
-  1:'16 h 45, boulevard Saint-Laurent, devant Ribotti Vintage. Ramasse des clopes, évite le monde sur le trottoir pis rends-toi au dépanneur chercher de la bière.',
-  boss:'Ta blonde t\'attend devant le frigo à bière, les bras croisés. Lance-lui des bières pour la calmer pis esquive ses cafés.',
-  2:'21 h, le boulevard s\'allume. Rejoins le bar Chez Ginette sans te faire embarquer par tes collègues devant les bars.',
-  joint:'Au fond du bar, LD sort un joint : « Le premier qui finit gagne. » Tire vite, mais surveille ta toux.',
-  dance:'Ginette, le patron, bloque la sortie : personne ne repart sans danser avec lui. Suis le rythme!',
-  texto:'Ton téléphone vibre : c\'est ta blonde. Réponds bien à ses textos, sinon elle te commande un Uber.',
-  bike:'LD dort dans les toilettes. Prends son skate pis rentre chez vous : évite les chars, les cônes pis les trous.',
-  3:'3 h du matin. Ta blonde dort au fond de l\'appart. Passe par le divan, le foyer pis le frigo pour éviter le chien pis les planches qui craquent, sans rien faire tomber. Attention : sauter de trop haut, ça fait du bruit.'};
 function openPhone(o){
-  if(!o.text)o.text=LV_STORY[level]||'';
+  if(!o.text)o.text=LEVELS[level].story||'';
   phone=Object.assign({t:0},o);state='phone';
   keys.l=keys.r=keys.j=keys.d=keys.s=keys.t=false;jumpBuf=0;throwReq=false;
   beep(880,1320,.09,'sine',.05);setTimeout(()=>beep(1320,1760,.09,'sine',.04),110);
@@ -42,12 +14,12 @@ function closePhone(){
   if(phone.t<.35){phone.want=true;return}
   phone=null;state='play';
   keys.l=keys.r=keys.j=keys.d=keys.s=keys.t=false;jumpBuf=0;throwReq=false;
-  if(level==='dance'){stopDanceMusic();setupDance()}
+  const D=LEVELS[level];if(D.afterPhone)D.afterPhone();
 }
 const TOUCH_KEY={'← →':'◀ ▶','ESPACE':'▲','E':'BIÈRE','TIENS E':'TIENS VOLER','MAJ':'SPRINT','↓':'▼','↑':'▲','CLIC / ESPACE':'TOUCHE','CLIC / 1 2 3':'TOUCHE','← ↓ ↑ →':'◀ ▼ ▲ ▶','↑ / ↓':'POUSSE / FREINE','EN L\'AIR + FLÈCHE':'EN L\'AIR + ◀ ▶'};
-function touchKey(k){if(!IS_TOUCH)return k;if(level==='bike'&&k==='ESPACE')return 'OLLIE';if(level===3&&k==='E')return 'VOMIR';if(level===3&&k==='MAJ')return 'COURIR';return TOUCH_KEY[k]||k}
+function touchKey(k){if(!IS_TOUCH)return k;const L=LEVELS[level].touchLabels;return L&&L[k]||TOUCH_KEY[k]||k}
 function drawPhone(){
-  const P=phone,T=TUTO[level]||TUTO[1];
+  const P=phone,T=(LEVELS[level]||LEVELS[1]).tuto;
   ctx.setTransform(scale,0,0,scale,0,0);
   ctx.fillStyle='rgba(26,10,44,.9)';ctx.fillRect(0,0,W,H);htFill2();
   const ph=528,pw=Math.round(ph*PHONE.ar),px=W-pw-60;

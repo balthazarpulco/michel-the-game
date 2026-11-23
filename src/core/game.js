@@ -27,7 +27,7 @@ function gameOver(why,win){
   let best=0;try{best=+localStorage.getItem('gerald-best')||0;if(total>best){best=total;localStorage.setItem('gerald-best',String(total))}}catch(e){best=Math.max(best,total)}
   document.getElementById('reason').textContent=why;
   document.getElementById('finalScore').textContent=total.toLocaleString('fr-CA')+' pts';
-  document.getElementById('finalStats').innerHTML=`<span>Cigarettes <b>${cigs}</b></span><span>Bières <b>${beers}</b></span><span>K.O. <b>${koCount}</b></span><span>Niveau <b>${STAGE_NAME[level]||level}</b></span><span>Record <b>${best.toLocaleString('fr-CA')}</b></span><span>Mode <b>${DF.name}</b></span>`+(run.got.length?`<span class="tw">🏆 ${run.got.map(id=>TROPHIES.find(x=>x[0]===id)[2]).join(' · ')}</span>`:'');
+  document.getElementById('finalStats').innerHTML=`<span>Cigarettes <b>${cigs}</b></span><span>Bières <b>${beers}</b></span><span>K.O. <b>${koCount}</b></span><span>Niveau <b>${lvStage(level)||level}</b></span><span>Record <b>${best.toLocaleString('fr-CA')}</b></span><span>Mode <b>${DF.name}</b></span>`+(run.got.length?`<span class="tw">🏆 ${run.got.map(id=>TROPHIES.find(x=>x[0]===id)[2]).join(' · ')}</span>`:'');
   const entry=openEntry(total,level,!!win);
   document.getElementById('contBtn').hidden=!!win;
   setTimeout(()=>{document.getElementById('over').hidden=false;(entry&&!document.body.classList.contains('pad')?nameIn:document.getElementById(win?'again':'contBtn')).focus()},500);

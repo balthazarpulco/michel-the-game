@@ -123,3 +123,20 @@ function drawJoint(){
   ctx.font='14px "Lilita One", Inter, Arial';ctx.textAlign='center';ctx.fillStyle='#fff4dc';ctx.strokeStyle=INK;ctx.lineWidth=4;const tip='CLIQUE OU ESPACE POUR TIRER · ATTENTION À LA TOUX';ctx.strokeText(tip,W/2,H-12);ctx.fillText(tip,W/2,H-12);
   if(j.t<0){const c=Math.ceil(-j.t/(2.6/3));ctx.font='64px "Lilita One", Inter, Arial';ctx.textAlign='center';ctx.strokeStyle=INK;ctx.lineWidth=7;const s=c>0&&c<=3?String(c):'GO!';ctx.strokeText(s,W/2,300);ctx.fillStyle='#ffbf47';ctx.fillText(s,W/2,300)}
 }
+
+// ---------- registre ----------
+defineLevel({
+  id:'joint', n:5,
+  name:'DUEL AVEC LD', stage:'Duel LD', chapter:'Duel avec LD',
+  dev:'Duel avec LD', devTitle:'DUEL AVEC LD',
+  track:'c', hour:()=>23.6,
+  place:()=>'Fond du bar',
+  start:setupJoint,
+  update:updateJoint, draw:drawJoint,
+  keydown:e=>{if(e.code==='Space'||e.code==='KeyE'||e.code==='Enter'){e.preventDefault();if(!e.repeat)jointPuff();return true}return false},
+  pointer:e=>{e.preventDefault();jointPuff()},
+  pad:()=>'none',
+  tuto:{from:'LD',av:'#c98a3b',msgs:['Le premier qui finit gagne 😏'],tips:[['CLIC / ESPACE','tirer une puff'],['TOUX','ralentis quand la jauge rougit']]},
+  story:'Au fond du bar, LD sort un joint : « Le premier qui finit gagne. » Tire vite, mais surveille ta toux.',
+  ctrl:[['Tirer une puff','CLIC · ESPACE','A']],
+});

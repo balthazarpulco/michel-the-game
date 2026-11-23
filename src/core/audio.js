@@ -1,4 +1,4 @@
-// Son : musique par groupe de niveaux (LV_TRACK, fondus), bips et effets synthétisés, bouton muet.
+// Son : musique par groupe de niveaux (piste choisie par le registre de niveaux, fondus), bips et effets synthétisés, bouton muet.
 // (Code partagé : tous les fichiers listés dans src/game-order.json forment une seule portée.)
 
 // ---------- audio ----------
@@ -7,7 +7,6 @@ try{muted=localStorage.getItem('gerald-mute')==='1'}catch(e){}
 const muteBtn=document.getElementById('mute');
 // ---------- music: one track per group of levels, cross-faded ----------
 const MUSIC={intro:'intro.mp3',a:'1-2-3.mp3',b:'4.mp3',c:'5-6.mp3',d:'7-8.mp3',e:'9.mp3'};
-const LV_TRACK={limo:'d',bj:'d',flip:'d',office:'a',1:'a',boss:'a',2:'b',joint:'c',dance:'c',texto:'d',bike:'d',3:'e'};
 const tracks={};let curTrack=null;const MUSIC_VOL=.5;
 function trk(k){if(!tracks[k]){const a=new Audio('music/'+MUSIC[k]);a.loop=true;a.preload='auto';a.volume=0;tracks[k]=a}return tracks[k]}
 function playTrack(k){

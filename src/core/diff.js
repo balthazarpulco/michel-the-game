@@ -13,7 +13,7 @@ function setDiff(d){
   if(!DIFFS[d])return;diff=d;DF=DIFFS[d];try{localStorage.setItem('michel-diff',d)}catch(e){}
   document.querySelectorAll('#diffRow button').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.d===d)));
   document.getElementById('diffNote').textContent=DF.note;
-  if(typeof TUTO!=='undefined'){TUTO.texto.tips[2][0]=DF.qtime+' S';TUTO.dance.tips[1][0]=Math.round(DF.dPass*100)+' %'}
+  if(LEVELS.texto&&LEVELS.dance){LEVELS.texto.tuto.tips[2][0]=DF.qtime+' S';LEVELS.dance.tuto.tips[1][0]=Math.round(DF.dPass*100)+' %'}
   const cb=document.getElementById('contBtn');if(cb)cb.textContent='REPRENDRE · '+DF.cont+(DF.cont>1?' VIES':' VIE');
 }
 document.querySelectorAll('#diffRow button').forEach(b=>b.onclick=()=>{setDiff(b.dataset.d);beep(660,880,.06,'triangle',.04)});
