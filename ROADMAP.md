@@ -9,16 +9,22 @@ Règle d'or : **chaque étape livre un jeu jouable**. Avant de passer à l'étap
 
 ## Étape 0 — Préparation
 
-- [ ] `git init` et commit de l'état actuel (`v55`, identique à l'artifact claude.ai).
-- [ ] Tag `v1-canvas` pour pouvoir revenir à cette version.
-- [ ] Vérifier que `python3 tools/build.py --test` et `python3 tools/smoke.py` passent avant de toucher quoi que ce soit.
+- [x] `git init` et commit de l'état actuel (`v55`, identique à l'artifact claude.ai).
+- [x] Tag `v1-canvas` pour pouvoir revenir à cette version.
+- [x] Vérifier que `python3 tools/build.py --test` et `python3 tools/smoke.py` passent avant de toucher quoi que ce soit.
 
-## Étape 1 — Restructuration (aucun changement visible)
+## Étape 1 — Restructuration (aucun changement visible) ✅
+
+Fait. Écarts assumés par rapport au plan :
+- Les fichiers du jeu sont encore du JS qui partage une seule portée (voir « Architecture » dans `CLAUDE.md`), pas des modules TypeScript typés. Seuls l'entrée et le loader sont en TS. La conversion se fera module par module.
+- Atlas faits maison (`tools/assets.mjs` + sharp) au lieu de TexturePacker.
+- L'audio n'est pas préchargé (10 Mo de musique avant le premier écran casserait l'objectif des 3 s) : seules les images, les rigs et les polices le sont.
+- Polices auto-hébergées, plus de Google Fonts.
 
 But : sortir du fichier unique de ~3 850 lignes sans changer le rendu.
 
-- [ ] Mettre en place **Vite + TypeScript** (`npm create vite@latest`, template vanilla-ts).
-- [ ] Découper `src/template.html` en modules :
+- [x] Mettre en place **Vite + TypeScript** (`npm create vite@latest`, template vanilla-ts).
+- [x] Découper `src/template.html` en modules :
   ```
   src/
     main.ts            boucle, états, dispatch update/render
@@ -30,11 +36,11 @@ But : sortir du fichier unique de ~3 850 lignes sans changer le rendu.
                        texto.ts, limo.ts, bj.ts, flip.ts, bike.ts, home.ts
     data/              LV_TRACK, STAGE_NAME, LV_NAME, TROPHIES, CHAPTERS…
   ```
-- [ ] **Registre de niveaux** : chaque niveau exporte `{ id, name, track, start, update, render, keys, pad, tuto, story, ctrl }`. Ajouter un niveau ne demande alors plus de modifier une douzaine d'endroits (voir la liste dans `CLAUDE.md`).
-- [ ] Sortir les images du base64 : `assets/img/*` deviennent des fichiers servis à part, regroupés en **atlas WebP** (TexturePacker ou `free-tex-packer`).
-- [ ] **Écran de chargement** avec une vraie barre de progression (préchargement des atlas, de l'audio et des rigs JSON).
-- [ ] Adapter `tools/smoke.py` pour qu'il tourne sur `vite preview` à la place de `dist/test.html`, en gardant un hook `__g` exposé en mode test.
-- [ ] Vérification : captures `shots/` identiques à la v1 (à quelques pixels près).
+- [x] **Registre de niveaux** : chaque niveau exporte `{ id, name, track, start, update, render, keys, pad, tuto, story, ctrl }`. Ajouter un niveau ne demande alors plus de modifier une douzaine d'endroits (voir la liste dans `CLAUDE.md`).
+- [x] Sortir les images du base64 : `assets/img/*` deviennent des fichiers servis à part, regroupés en **atlas WebP** (TexturePacker ou `free-tex-packer`).
+- [x] **Écran de chargement** avec une vraie barre de progression (préchargement des atlas, de l'audio et des rigs JSON).
+- [x] Adapter `tools/smoke.py` pour qu'il tourne sur `vite preview` à la place de `dist/test.html`, en gardant un hook `__g` exposé en mode test.
+- [x] Vérification : captures `shots/` identiques à la v1 (à quelques pixels près).
 
 ## Étape 2 — Rendu PixiJS (WebGL)
 
