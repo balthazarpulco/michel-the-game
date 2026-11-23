@@ -17,6 +17,7 @@ function loop(now){
     while(!genDone&&genX<camX+W*2)genChunk();camX=Math.min(camX,LEN[1]-W);}
   else if(state==='over'){t+=dt;for(const q of parts){q.life-=dt}}
   else if(state==='phone'&&phone){t+=dt;phone.t+=dt;if(phone.want&&phone.t>=.35)closePhone()}
+  {const D=LEVELS[level];if(GFX&&D&&D.fxTick&&(state==='play'||state==='title'))D.fxTick(dt)}   // the level's particle emitters
   render();
   try{useHud();drawToasts(dt)}catch(e){}
   if(GFX){const D=LEVELS[level];GFX.present({t,dt,scale,level,state,drunk:state==='play'?drunk():0,night:frameNight,fxLevel:D&&D.fx||null})}

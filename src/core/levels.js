@@ -22,7 +22,8 @@
 //   afterPhone() quand le téléphone se ferme et que le niveau démarre
 //   canPause()  renvoie false quand la pause est interdite (défaut : permise)
 //   touchLabels libellés tactiles propres au niveau ({ESPACE:'OLLIE'})
-//   fx          effets du rendu PixiJS : {bloom: 0..1} (src/gfx/effects.ts) ; particules : fxTick(dt) (src/gfx/particles.ts)
+//   fx          effets du rendu PixiJS : {bloom: 0..1} (src/gfx/effects.ts) 
+//   fxTick(dt)  émetteurs de particules du niveau, à chaque frame en jeu (FX.burst / FX.emit, src/gfx/particles.ts)
 let LEVEL_ORDER=[];
 const LEVELS={};
 function defineLevel(def){LEVELS[def.id]=def;LEVEL_ORDER=Object.values(LEVELS).sort((a,b)=>a.n-b.n).map(d=>d.id)}

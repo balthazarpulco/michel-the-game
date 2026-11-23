@@ -39,7 +39,7 @@ function startLevel(l){updateKeys(l);
   if(l!=='dance'&&tracks.c){try{tracks.c.playbackRate=1}catch(e){}}
   playTrack(LEVELS[l].track);
   if(!lvSnap||lvSnap.l!==l)lvSnap={l,score,cigs,beers,ammo,ko:koCount};
-  level=l;unlockChapter(l);
+  level=l;unlockChapter(l);FX.clear();
   player={walk:0,x:120,y:GROUND-96,w:38,h:96,vx:0,vy:0,onGround:true,facing:1,coyote:0,inv:0,dropT:0,land:0,throwT:0,slip:0,hic:4};
   doorOut=null;camX=0;genX=0;facades=[];platforms=[];decos=[];dangers=[];enemies=[];items=[];parts=[];popups=[];cars=[];lamps=[];bottles=[];cups=[];puddles=[];cans=[];lastResto=-9999;
   boss=null;goal=null;genDone=false;rbPlaced=false;churchDone=false;firstBar=true;soberT=0;carTimer=1;banner=null;maxX=0;distance=0;smokeT=0;firstResto=(l===1);
