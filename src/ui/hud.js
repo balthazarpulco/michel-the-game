@@ -2,6 +2,7 @@
 // (Code partagé : tous les fichiers listés dans src/game-order.json forment une seule portée.)
 
 function hud(n){
+  useHud();
   ctx.save();
   // panel
   ctx.fillStyle='rgba(32,13,56,.82)';pg(12,12,300,50);ctx.fill();htFill();

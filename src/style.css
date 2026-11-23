@@ -224,3 +224,6 @@ body.pad .diff button:focus{outline-offset:1px}
 .loadPct{font-family:var(--display);color:var(--yellow);font-size:clamp(14px,2vw,22px);letter-spacing:.04em}
 #loadOv.err .loadBar i{background:var(--pink)}
 #loadOv.done{opacity:0;pointer-events:none;transition:opacity .35s ease}
+/* PixiJS renderer (src/gfx/pixi.ts): its canvas sits exactly over #c, which stays for layout and pointer events */
+#gl{position:absolute;pointer-events:none}
+canvas.under-gl{opacity:0}

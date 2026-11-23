@@ -20,7 +20,8 @@ function devGo(lv){
   openPhone({kicker:godMode?'NOTIFICATIONS · INVINCIBLE':'NOTIFICATIONS',title:LEVELS[l].devTitle,text:'',btn:'JOUER'});
 }
 // one button per level, in the night's order (built at boot, once every level is registered)
-function buildDevGrid(){const g=document.getElementById('devLevels');g.textContent='';
+function buildDevGrid(){document.getElementById('devRenderer').textContent='Rendu : '+(GFX?'PixiJS (WebGL)':'Canvas 2D')+' ⇄';
+  const g=document.getElementById('devLevels');g.textContent='';
   LEVEL_ORDER.forEach((id,i)=>{const b=document.createElement('button');b.type='button';b.dataset.lv=String(id);b.textContent=(i+1)+' · '+LEVELS[id].dev;b.onclick=()=>devGo(b.dataset.lv);g.append(b)})}
 document.querySelectorAll('#dev [data-act]').forEach(b=>b.onclick=()=>{
   const a=b.dataset.act;
@@ -28,4 +29,5 @@ document.querySelectorAll('#dev [data-act]').forEach(b=>b.onclick=()=>{
   if(a==='life')lives=Math.min(MAXL,lives+3);
   if(a==='god'){godMode=!godMode;b.textContent='Invincible : '+(godMode?'oui':'non')}
   if(a==='restart')restartAll();
+  if(a==='renderer'){try{localStorage.setItem('michel-renderer',GFX?'canvas':'pixi')}catch(e){}location.reload()}
 });

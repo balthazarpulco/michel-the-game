@@ -2,6 +2,7 @@
 import './style.css';
 import { loadAll } from './boot/loader';
 import { boot } from 'virtual:game';
+import { Gfx, wantedRenderer } from './gfx/pixi';
 
 const ov = document.getElementById('loadOv')!;
 const fill = document.getElementById('loadFill')!;
@@ -14,9 +15,14 @@ function progress(p: number) {
   ov.setAttribute('aria-valuenow', String(n));
 }
 
-loadAll(progress)
-  .then(({ assets, ui }) => {
-    boot(assets, ui);
+const cv = document.getElementById('c') as HTMLCanvasElement;
+// the WebGL renderer starts while the assets load
+const gfxReady = wantedRenderer() === 'pixi' ? Gfx.create(cv) : Promise.resolve(null);
+
+Promise.all([loadAll(progress), gfxReady])
+  .then(([{ assets, ui }, gfx]) => {
+    document.documentElement.dataset.renderer = gfx ? 'pixi' : 'canvas';
+    boot(assets, ui, gfx);
     ov.classList.add('done');
     setTimeout(() => ov.remove(), 400);
   })

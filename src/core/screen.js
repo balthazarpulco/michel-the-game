@@ -7,5 +7,6 @@ function resize(){
   const r=cv.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2,1920/Math.max(1,r.width));
   cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);
   scale=cv.width/W;
+  if(GFX)GFX.resize(cv.width,cv.height);
 }
 new ResizeObserver(resize).observe(cv);resize();

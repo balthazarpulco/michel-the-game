@@ -6,6 +6,7 @@ Usage (project root):  python3 tools/smoke.py [level ...] [--no-build] [--url UR
   --no-build   reuse dist-test/ as is
   --url URL    test an already running page instead (it must expose the __g hook: `npm run dev`, or a test build)
   --out DIR    where screenshots go (default shots/)
+  --renderer R pixi (default) or canvas
 Math.random is seeded, so two runs build the same streets (handy to compare screenshots).
 Needs: Node (npm install done) and  pip install playwright  (Python 3.9+, Chromium for Playwright).
 """
@@ -20,7 +21,7 @@ def opt(name, default=None):
     if name in args:
         i = args.index(name); v = args[i + 1]; del args[i:i + 2]; return v
     return default
-URL = opt('--url'); OUT = opt('--out', os.path.join(ROOT, 'shots'))
+URL = opt('--url'); OUT = opt('--out', os.path.join(ROOT, 'shots')); RENDERER = opt('--renderer', 'pixi')
 BUILD = '--no-build' not in args
 if not BUILD: args.remove('--no-build')
 LEVELS = args or ALL
@@ -48,9 +49,10 @@ async def main(url):
         pg.on('pageerror', lambda e: errs.append(str(e)))
         pg.on('console', lambda m: m.type == 'error' and errs.append('console: ' + m.text))
         await pg.add_init_script(SEED)
-        await pg.goto(url)
+        await pg.goto(url + ('&' if '?' in url else '?') + 'renderer=' + RENDERER)
         await pg.wait_for_function('window.__g', timeout=30000)
         await pg.wait_for_timeout(1200)
+        print('renderer', await pg.evaluate('document.documentElement.dataset.renderer'))
         await pg.screenshot(path=os.path.join(OUT, 'title.png'))
         ev = lambda c: pg.evaluate('__g.ev(%r)' % c)
         for lv in LEVELS:

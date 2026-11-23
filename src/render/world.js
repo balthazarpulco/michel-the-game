@@ -49,17 +49,20 @@ function drawLights(n,only){
   if(!only)for(const it of items){const x=it.x-camX;if(x<-30||x>W+30)continue;const g=ctx.createRadialGradient(x,it.y,1,x,it.y,26);g.addColorStop(0,'rgba(255,200,110,.9)');g.addColorStop(1,'rgba(255,200,110,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,it.y,26,0,7);ctx.fill()}
   ctx.restore();
 }
+let frameNight=0;   // how dark the last world frame was (for the renderer's effects)
 function render(){
+  useMain();
+  if(GFX){hudCtx.setTransform(1,0,0,1,0,0);hudCtx.clearRect(0,0,hudCtx.canvas.width,hudCtx.canvas.height)}
   renderBase();
-  if(state==='phone'&&phone)drawPhone();
+  if(state==='phone'&&phone){useHud();drawPhone()}
 }
 function renderBase(){
   const D=LEVELS[level];
-  if(D.draw){ctx.setTransform(scale,0,0,scale,0,0);D.draw();drawNoise();return}
-  renderWorld();drawNoise();
+  if(D.draw){frameNight=D.night||0;ctx.setTransform(scale,0,0,scale,0,0);D.draw();useMain();drawNoise();return}
+  renderWorld();useMain();drawNoise();
 }
 function renderWorld(){
-  const D=LEVELS[level],n=D.night!=null?D.night:nightAt(camX+W/2);
+  const D=LEVELS[level],n=D.night!=null?D.night:nightAt(camX+W/2);frameNight=n;
   lights=[];
   ctx.setTransform(scale,0,0,scale,0,0);
   if(shake>0)ctx.translate(rnd(-5,5)*shake*3,rnd(-5,5)*shake*3);
@@ -126,6 +129,7 @@ function renderWorld(){
   for(const e of enemies){if(e.ko||state!=='play')continue;const txt=e.act?e.actSay:e.near?e.say:null;if(txt){const x=e.x+e.w/2-camX;bubble(txt,x,GROUND-(e.dh||e.h)-(e.type==='bum'?14:22))}}
   if(boss&&boss.sayT>0)bubble(boss.say,boss.x+boss.w/2,GROUND-BOSS_H-4,true);
   for(const q of popups){ctx.globalAlpha=clamp(q.t*2,0,1);ctx.font='18px "Lilita One", Inter, Arial';ctx.textAlign='center';ctx.strokeStyle=INK;ctx.lineWidth=4;ctx.strokeText(q.text,q.x-camX,q.y);ctx.fillStyle=q.c;ctx.fillText(q.text,q.x-camX,q.y);ctx.globalAlpha=1}
+  useHud();   // everything below is interface: never filtered
   ctx.setTransform(scale,0,0,scale,0,0);
   hud(n);
   if(banner){

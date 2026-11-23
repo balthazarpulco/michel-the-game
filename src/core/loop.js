@@ -18,6 +18,7 @@ function loop(now){
   else if(state==='over'){t+=dt;for(const q of parts){q.life-=dt}}
   else if(state==='phone'&&phone){t+=dt;phone.t+=dt;if(phone.want&&phone.t>=.35)closePhone()}
   render();
-  try{drawToasts(dt)}catch(e){}
+  try{useHud();drawToasts(dt)}catch(e){}
+  if(GFX){const D=LEVELS[level];GFX.present({t,dt,scale,level,state,drunk:state==='play'?drunk():0,night:frameNight,fxLevel:D&&D.fx||null})}
   requestAnimationFrame(loop);
 }

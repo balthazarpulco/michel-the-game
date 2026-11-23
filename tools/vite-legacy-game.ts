@@ -32,7 +32,7 @@ export default function legacyGame(srcDir: string): Plugin {
         this.addWatchFile(f);
         b.addSource({ filename: f, content: new MagicString(fs.readFileSync(f, 'utf8')) });
       }
-      b.prepend('export function boot(ASSETS, UI) {\n');
+      b.prepend('export function boot(ASSETS, UI, GFX) {\n');
       b.append('\n' + (hook
         ? "window.__g={go:l=>{['title','card','over','dev','pauseOv'].forEach(i=>document.getElementById(i).hidden=true);devGo(String(l))},ev:c=>eval(c)};\n"
         : '') + '}\n');

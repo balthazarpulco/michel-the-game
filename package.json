@@ -17,5 +17,9 @@
     "sharp": "^0.35.5",
     "typescript": "^5.9.3",
     "vite": "^8.3.8"
+  },
+  "dependencies": {
+    "pixi-filters": "^6.1.5",
+    "pixi.js": "^8.23.0"
   }
 }
