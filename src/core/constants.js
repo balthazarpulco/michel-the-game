@@ -11,7 +11,7 @@ const cv=document.getElementById('c');
 let ctx=cv.getContext('2d');
 const mainCtx=ctx,hudCtx=GFX?GFX.hudCanvas.getContext('2d'):mainCtx;
 // GPU particles (src/gfx/particles.ts), in screen coordinates (960 × 540); they do nothing with the Canvas 2D renderer
-const FX=GFX?GFX.fx:{burst(){},emit(){},clear(){},count:0};
+const FX=GFX?GFX.fx:{burst(){},emit(){},clear(){},anim(){return {stop(){}}},count:0};
 function useMain(){ctx=mainCtx}
 function useHud(){if(ctx!==hudCtx){ctx=hudCtx;ctx.setTransform(scale,0,0,scale,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}}
 const stage=document.getElementById('stage');

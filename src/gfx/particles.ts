@@ -4,12 +4,14 @@
 //   FX.burst('spark', x, y, {n: 20})       une gerbe ponctuelle
 //   FX.emit('smoke', x, y, {vx: 10})       une seule particule
 //   FX.clear()                             vide tout (changement de niveau)
+//   FX.anim('nom', x, y, {loop, scale})    joue une séquence d'images de assets/anim/<nom>/ (src/gfx/anims.ts)
 //
 // Presets : spark (étincelles additives), ember (braise qui monte), smoke (volute douce), dust (poussière),
 // confetti (carrés colorés qui tournent), drop (goutte de pluie), flash (éclair rond qui s'ouvre), mote (poussière
 // de lumière qui flotte). Les options écrasent les valeurs du preset.
 import { Container, Sprite, Texture, type BLEND_MODES } from 'pixi.js';
 import type { FrameInfo } from './effects';
+import { Anims, type AnimOpts } from './anims';
 
 type Shape = 'dot' | 'soft' | 'streak' | 'square';
 
@@ -71,6 +73,12 @@ function makeTexture(shape: Shape): Texture {
 
 export class Particles {
   readonly layer = new Container();
+  /** image-sequence animations (src/gfx/anims.ts), under the particles */
+  readonly anims = new Anims();
+  private parts = new Container();
+  constructor() { this.layer.addChild(this.anims.layer, this.parts); }
+
+  anim(name: string, x: number, y: number, o?: AnimOpts) { return this.anims.play(name, x, y, o); }
   private live: P[] = [];
   private pool: Sprite[] = [];
   private tex = {} as Record<Shape, Texture>;
@@ -100,12 +108,13 @@ export class Particles {
         life, max: life, size: rnd(q.size, 4), grow: q.grow ?? 1, alpha: q.alpha ?? 1, fadeIn: q.fadeIn ?? 0,
         spin: rnd(q.spin, 0), stretch: !!q.stretch,
       });
-      this.layer.addChild(s);
+      this.parts.addChild(s);
     }
   }
 
   clear() {
-    for (const p of this.live) { this.layer.removeChild(p.s); this.pool.push(p.s); }
+    this.anims.clear();
+    for (const p of this.live) { this.parts.removeChild(p.s); this.pool.push(p.s); }
     this.live.length = 0;
   }
 
@@ -115,11 +124,12 @@ export class Particles {
     this.layer.scale.set(f.scale);
     // particles freeze with the game (pause, phone, dev menu…)
     if (f.state !== 'play' && f.state !== 'title' && f.state !== 'over') return;
+    this.anims.update(f);
     const dt = f.dt;
     for (let i = this.live.length - 1; i >= 0; i--) {
       const p = this.live[i], s = p.s;
       p.life -= dt;
-      if (p.life <= 0) { this.layer.removeChild(s); this.pool.push(s); this.live[i] = this.live[this.live.length - 1]; this.live.pop(); continue; }
+      if (p.life <= 0) { this.parts.removeChild(s); this.pool.push(s); this.live[i] = this.live[this.live.length - 1]; this.live.pop(); continue; }
       const k = Math.pow(p.drag, dt);
       p.vx *= k; p.vy = p.vy * k + p.g * dt;
       s.x += p.vx * dt; s.y += p.vy * dt;

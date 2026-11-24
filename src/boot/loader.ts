@@ -11,7 +11,8 @@ interface Manifest {
   files: Record<string, string>;
   atlases: string[];
   /** sprite path -> [atlas page, x, y, w, h] */
-  frames: Record<string, [number, number, number, number, number]>;
+  frames: Record<string, number[]>;
+  anims?: Record<string, import('../gfx/anims').AnimDef>;
   sizes: Record<string, number>;
   data: Record<string, unknown>;
 }
@@ -19,6 +20,7 @@ interface Manifest {
 export interface Loaded {
   assets: Record<string, any>;
   ui: { bg: Drawable };
+  atlas: import('../gfx/anims').AtlasData;
 }
 
 const BASE = import.meta.env.BASE_URL + 'gen/';
@@ -100,5 +102,5 @@ export async function loadAll(onProgress: (p: number) => void): Promise<Loaded> 
       for (const n of man.rigOrder) assets.rigs[n] = resolve(rigs[n], img);
     } else assets[k] = resolve(man.data[k], img);
   }
-  return { assets, ui: { bg: img('ui/bg.webp') } };
+  return { assets, ui: { bg: img('ui/bg.webp') }, atlas: { pages, frames: man.frames, anims: man.anims || {} } };
 }

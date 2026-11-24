@@ -20,7 +20,8 @@ const cv = document.getElementById('c') as HTMLCanvasElement;
 const gfxReady = wantedRenderer() === 'pixi' ? Gfx.create(cv) : Promise.resolve(null);
 
 Promise.all([loadAll(progress), gfxReady])
-  .then(([{ assets, ui }, gfx]) => {
+  .then(([{ assets, ui, atlas }, gfx]) => {
+    gfx?.fx.anims.setAtlas(atlas);
     document.documentElement.dataset.renderer = gfx ? 'pixi' : 'canvas';
     boot(assets, ui, gfx);
     ov.classList.add('done');

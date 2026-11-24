@@ -69,9 +69,41 @@ async function packAtlases(sprites) {
       .webp(ATLAS_WEBP)
       .toBuffer();
     out.push(write(withHash(`atlas/atlas-${i}.webp`, buf), buf));
-    for (const it of p.items) frames[it.rel] = [i, it.x, it.y, it.w, it.h];
+    // [page, x, y, w, h] (+ for trimmed animation frames: offset x, offset y, full width, full height)
+    for (const it of p.items) frames[it.rel] = it.full ? [i, it.x, it.y, it.w, it.h, it.ox, it.oy, it.full[0], it.full[1]] : [i, it.x, it.y, it.w, it.h];
   }
   return { pages: out, frames };
+}
+
+// ---------- animations (PNG / WebP sequences, e.g. exported from After Effects) ----------
+// assets/anim/<name>/*.png, played in frame-name order. Optional assets/anim/<name>/anim.json:
+//   { "fps": 24, "loop": false, "anchor": [0.5, 1], "scale": 1 }
+// Frames are trimmed (transparent borders removed) and packed into the atlases with the sprites.
+async function collectAnims(sprites) {
+  const dir = A('anim'), anims = {};
+  if (!fs.existsSync(dir)) return anims;
+  for (const name of fs.readdirSync(dir).sort()) {
+    const d = path.join(dir, name);
+    if (!fs.statSync(d).isDirectory()) continue;
+    const cfgFile = path.join(d, 'anim.json');
+    const cfg = { fps: 24, loop: false, anchor: [0.5, 0.5], scale: 1, ...(fs.existsSync(cfgFile) ? JSON.parse(fs.readFileSync(cfgFile, 'utf8')) : {}) };
+    const list = fs.readdirSync(d).filter(f => /\.(png|webp)$/i.test(f)).sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+    if (!list.length) continue;
+    const keys = [];
+    for (let i = 0; i < list.length; i++) {
+      const src = fs.readFileSync(path.join(d, list[i]));
+      const meta = await sharp(src).metadata();
+      let buf, info;
+      try { ({ data: buf, info } = await sharp(src).trim({ threshold: 0 }).png().toBuffer({ resolveWithObject: true })); }
+      catch { buf = await sharp(src).resize(1, 1).png().toBuffer(); info = { width: 1, height: 1, trimOffsetLeft: 0, trimOffsetTop: 0 }; }  // fully transparent frame
+      if (Math.max(info.width, info.height) > MAX_SPRITE) throw new Error(`anim ${name}: frame ${list[i]} trop grande (${info.width}×${info.height}, max ${MAX_SPRITE})`);
+      const rel = `anim/${name}/${i}`;
+      sprites.push({ rel, buf, w: info.width, h: info.height, ox: -(info.trimOffsetLeft || 0), oy: -(info.trimOffsetTop || 0), full: [meta.width, meta.height] });
+      keys.push(rel);
+    }
+    anims[name] = { fps: cfg.fps, loop: cfg.loop, anchor: cfg.anchor, scale: cfg.scale, frames: keys };
+  }
+  return anims;
 }
 
 // every "@img:" reference found in a JSON tree
@@ -124,11 +156,12 @@ export async function buildAssets({ force = false } = {}) {
     if (m.hasAlpha && Math.max(m.width, m.height) <= MAX_SPRITE) sprites.push({ rel, buf, w: m.width, h: m.height });
     else files[rel] = write(withHash(`img/${rel}`, buf), buf);
   }
+  const anims = await collectAnims(sprites);
   const { pages, frames } = await packAtlases(sprites);
   // the title screen's background street is drawn by the game too
   { const buf = fs.readFileSync(A('ui', 'bg.webp')); files['ui/bg.webp'] = write(withHash('img/ui/bg.webp', buf), buf); }
 
-  const out = { order, rigOrder, rigs, files, atlases: pages, frames, sizes, data: man };
+  const out = { order, rigOrder, rigs, files, atlases: pages, frames, anims, sizes, data: man };
   fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(out));
   fs.writeFileSync(stamp, fp);
   return out;
@@ -137,5 +170,5 @@ export async function buildAssets({ force = false } = {}) {
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   const t0 = Date.now();
   const r = await buildAssets({ force: process.argv.includes('--force') });
-  console.log(`assets: ${Object.keys(r.frames).length} sprites in ${r.atlases.length} atlases, ${Object.keys(r.files).length} images, ${Object.keys(r.rigs).length} rigs -> public/gen (${Date.now() - t0} ms)`);
+  console.log(`assets: ${Object.keys(r.anims || {}).length} animations, ${Object.keys(r.frames).length} sprites/frames in ${r.atlases.length} atlases, ${Object.keys(r.files).length} images, ${Object.keys(r.rigs).length} rigs -> public/gen (${Date.now() - t0} ms)`);
 }
