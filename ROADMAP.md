@@ -42,50 +42,54 @@ But : sortir du fichier unique de ~3 850 lignes sans changer le rendu.
 - [x] Adapter `tools/smoke.py` pour qu'il tourne sur `vite preview` à la place de `dist/test.html`, en gardant un hook `__g` exposé en mode test.
 - [x] Vérification : captures `shots/` identiques à la v1 (à quelques pixels près).
 
-## Étape 2 — Rendu PixiJS (WebGL)
+## Étape 2 — Rendu PixiJS (WebGL) ✅ (sauf le rig de Michel en sprites)
 
 But : afficher beaucoup plus d'éléments à l'écran et avoir accès aux filtres et aux shaders.
 
-- [ ] Intégrer **PixiJS v8**. Le canvas 960×540 devient un `Application` Pixi, et le letterbox et le plein écran restent les mêmes.
-- [ ] **Rig de Michel** : on garde la logique procédurale (ressorts, ivresse, `d25`, la tête qui mène). Seul le dessin change :
-  - option A : chaque partie du rig est rasterisée dans une texture (via le cache bitmap `vecDraw` qui existe déjà), puis rendue comme un `Sprite` Pixi avec pivot ;
-  - option B : `Graphics` Pixi à partir des tracés SVG.
-  → Commencer par l'option A : c'est plus rapide et le rendu est identique.
-- [ ] Porter l'UI (menus, hud, téléphone) : soit en Pixi, soit en DOM/CSS par-dessus le canvas. Le DOM est plus net pour le texte et plus simple pour l'accessibilité et la manette.
-- [ ] Filtres de base disponibles : glow, blur, bruit/grain, color matrix (pour l'ivresse : saturation, teinte, double vision).
-- [ ] Particules : `@pixi/particle-emitter` ou un système maison basé sur `mgParts`.
-- [ ] Migrer niveau par niveau. Un flag `RENDERER = 'canvas' | 'pixi'` sert de filet de sécurité pendant la transition.
+- [x] Intégrer **PixiJS v8** (`src/gfx/pixi.ts`). Le canvas Pixi se pose sur #c ; letterbox, plein écran et clics inchangés.
+  Choix fait : Pixi est un **compositeur**. Le jeu dessine toujours en Canvas 2D, dans deux calques (monde, interface), et Pixi les assemble avec les filtres et les particules. Tous les niveaux en profitent d'un coup, sans réécrire ~2 000 lignes de dessin.
+- [ ] **Rig de Michel en sprites Pixi (option A)** : pas fait. Tant que le monde est dessiné en Canvas 2D, Michel est intercalé entre le décor et l'avant-plan : le sortir dans Pixi demande de découper le dessin du monde en couches, niveau par niveau. À faire niveau par niveau, quand un niveau en a besoin (par exemple pour des filtres propres à Michel).
+- [x] UI : reste en DOM/CSS (menus, overlays). Le HUD, les bannières et le téléphone sont sur un calque à part, jamais filtré.
+- [x] Filtres (`src/gfx/effects.ts`, réglages dans `TUNING`) : ivresse (saturation, teinte qui dérive, double vision), glow (bloom), qualité auto. Le grain reste celui du Canvas.
+- [x] Particules : système maison GPU (`src/gfx/particles.ts`, `FX.burst / emit`), 8 presets.
+- [x] Filet de sécurité : `?renderer=canvas|pixi`, bouton dans le mode dev, repli automatique sur Canvas 2D (pas de WebGL, ou moins de 24 fps sur l'écran titre).
 
-## Étape 3 — Couche de détail d'animation
+## Étape 3 — Couche de détail d'animation (partie procédurale ✅)
 
 **Choix d'outil : À CONFIRMER par Alexandre.**
 Proposition par défaut :
-- **Sprite sheets exportées d'After Effects** pour les FX, les décors animés et les transitions (export PNG → atlas WebP, lecture via `AnimatedSprite`).
+- **Sprite sheets exportées d'After Effects** pour les FX, les décors animés et les transitions. **Le pipeline est prêt** : séquence PNG dans `assets/anim/<nom>/` (+ `anim.json`), puis `FX.anim('<nom>', x, y)`.
 - **Spine** (runtime `@esotericsoftware/spine-pixi-v8`) pour les PNJ importants qui doivent être souples (LD, Ginette, la blonde, Dulac, Delachaud).
 - Alternative : **Rive** (`@rive-app/canvas`), qui fait les deux avec des state machines interactives.
 
 **Michel reste un rig vectoriel procédural.** C'est la signature du jeu.
 
-Idées par niveau (à prioriser avec Alexandre) :
+Fait sans assets (particules, filtres, code) :
+- [x] Global : transition en trame de points entre les niveaux, squash & stretch sur les boutons (et respiration du bouton JOUER), vibration de la manette (blessure, K.O., chute, gros gains, atterrissages lourds), impacts (flash + étincelles), poussière aux atterrissages, braises sur les clopes et les bières.
+- [x] `2` : bruine fine à 21 h, glow des lampadaires, fenêtres et enseignes.
+- [x] `joint` : volutes de fumée GPU en plus de la fumée dessinée.
+- [x] `dance` : glow, poussière de lumière, étincelles sur les pas réussis, confettis tous les 10 pas d'affilée.
+- [x] `bj` / `flip` : traînée des billes, étincelles sur les bumpers, flash + confettis sur les gains, glow.
+- [x] `bike` : poussière sous les roues, nuage de poussière à la chute.
+- [x] `office` / `3` : poussière de lumière.
+
+À faire avec les exports ou l'outil d'Alexandre (à prioriser avec lui) :
 - [ ] `office` : écrans qui clignotent, collègues en idle, vapeur de café.
-- [ ] `1` / `2` (Saint-Laurent) : enseignes néon animées (avec glow), passants, voitures avec phares, pluie ou neige légère, fumée des bouches d'égout.
-- [ ] `boss` (dépanneur) : néon du frigo à bières, caissier en idle.
-- [ ] `joint` : volutes de fumée (sprites + blur).
-- [ ] `dance` : foule animée en arrière-plan, lumières de club (blend additif), boule disco.
-- [ ] `limo` : reflets qui défilent sur les vitres, lumières de la ville.
-- [ ] `bj` / `flip` : cartes et billes avec trails, flash sur les gains.
-- [ ] `bike` : parallax multi-couches, poussière, étincelles sur les grinds.
-- [ ] `3` (chez Michel) : chat qui dort, lumière de lampe, ombres.
-- [ ] Global : transitions entre les niveaux (wipe en trame de points en style `htFill`), squash & stretch sur les CTA, vibration de la manette.
+- [ ] `1` / `2` : enseignes néon animées, passants, fumée des bouches d'égout.
+- [ ] `boss` : néon du frigo à bières, caissier en idle.
+- [ ] `dance` : foule animée en arrière-plan, boule disco animée.
+- [ ] `limo` : reflets qui défilent sur les vitres.
+- [ ] `bike` : parallax multi-couches, étincelles sur les grinds.
+- [ ] `3` : chat qui dort, ombres.
 
-## Étape 4 — Mise en ligne
+## Étape 4 — Mise en ligne (tout ce qui ne demande pas de compte ✅)
 
-- [ ] Build de prod optimisé : atlas WebP, audio en `.ogg` et `.mp3` compressés, vidéos intro/outro en WebM et MP4 compressées, cache busting par hash (Vite le gère).
-- [ ] Hébergement : **itch.io** (page de jeu HTML5) et/ou le site d'Alexandre (Netlify ou Cloudflare Pages).
-- [ ] Classement en ligne : **Supabase** (table `scores` + RLS + validation simple côté serveur), avec repli sur localStorage.
-- [ ] Méta : favicon, Open Graph (key art), titre, description en français.
-- [ ] Tests sur les vrais navigateurs : Chrome, Safari macOS et iOS, Firefox, Android, avec manette et en tactile.
-- [ ] Performance : 60 fps sur un mobile milieu de gamme, premier affichage en moins de 3 s.
+- [x] Build de prod : atlas WebP, musique en `.ogg` (Opus) + `.mp3`, vidéos déjà compressées (gardées telles quelles), tout `gen/` et `assets/` hashé (cache infini via `public/_headers`).
+- [ ] Hébergement : **itch.io** et/ou le site d'Alexandre. Prêt (`npm run package:itch`, `dist/` pour Netlify / Cloudflare Pages), mais la mise en ligne demande ses comptes : voir `docs/DEPLOIEMENT.md`.
+- [x] Classement en ligne : **Supabase**, avec repli sur localStorage. Code + `supabase/schema.sql` (RLS, validation, anti-spam) prêts et testés. [ ] Créer le projet Supabase et mettre les clés dans `.env` (Alexandre).
+- [x] Méta : favicon, icônes, Open Graph (key art + logo), titre, description en français, manifest web.
+- [ ] Tests sur les vrais navigateurs : Chrome, Safari macOS et iOS, Firefox, Android, avec manette et en tactile (impossible depuis le conteneur : liste dans `docs/DEPLOIEMENT.md`).
+- [~] Performance : résolution adaptative et repli Canvas 2D automatiques ; `tools/perf.py` mesure en headless (WebGL logiciel, donc pessimiste). Le 60 fps sur un mobile milieu de gamme reste à vérifier sur un vrai téléphone.
 
 ---
 

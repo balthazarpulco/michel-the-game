@@ -3,7 +3,7 @@
 Jeu web 2D en une seule page HTML (canvas 960×540) : la soirée de Michel à Montréal, du studio jusqu'à son lit.
 Platformer, mini-jeux et cinématiques. Tout le texte du jeu est en **français québécois**.
 
-> **Chantier en cours : v2, voir `ROADMAP.md`.** Étapes 0 et 1 faites (Vite + TS, modules, registre, atlas, chargement).
+> **Chantier en cours : v2, voir `ROADMAP.md`.** Étapes 0 à 2 faites ; 3 et 4 faites pour tout ce qui ne demande pas de décision d'Alexandre (outil d'animation, hébergement, projet Supabase, tests sur vrais appareils).
 > **Cible : uniquement le web.** On ne passe ni à Unity ni à Unreal.
 > Les étapes sont : restructuration Vite + TypeScript → rendu PixiJS → couche de détail d'animation → mise en ligne.
 > Michel reste un rig vectoriel procédural. Chaque étape doit laisser un jeu jouable, avec `smoke.py` à 0 erreur et un commit.
@@ -26,9 +26,13 @@ npm install                       # une fois (Node 20+)
 npm run dev                       # serveur de dev Vite (http://localhost:5173), hook __g actif
 npm run build                     # assets + tsc + build de prod -> dist/ (à copier sur n'importe quel hébergement statique)
 npm run build:test                # build de test -> dist-test/ (hook __g)
-npm run assets                    # assets/ -> public/gen/ (atlas, images, rigs hashés) ; ne refait rien si assets/ n'a pas changé (--force)
+npm run assets                    # assets/ -> public/gen/ (atlas, images, rigs, musique, animations, hashés) ; ne refait rien si assets/ n'a pas changé (--force)
 python3 tools/smoke.py            # build de test + vite preview + les 12 niveaux en headless, captures dans shots/, doit finir par "errors total 0"
-python3 tools/smoke.py dance bj   # seulement certains niveaux (--no-build, --url URL, --out DIR)
+python3 tools/smoke.py dance bj   # seulement certains niveaux (--no-build, --url URL, --out DIR, --renderer pixi|canvas)
+python3 tools/perf.py             # démarrage + fps, téléphone simulé et CPU ralenti, pour les deux rendus
+npm run package:itch              # build de prod + release/une-nuit-avec-michel-itch.zip
+npm run meta                      # régénère icônes + image de partage (public/meta/) depuis le key art
+tools/encode-music.sh             # assets/music/*.mp3 -> .ogg (Opus) à côté
 python3 tools/rig_from_ai.py      # régénère assets/rigs/hero.json depuis source/MICHEL.ai (pip install pymupdf)
 ```
 
@@ -38,21 +42,27 @@ python3 tools/rig_from_ai.py      # régénère assets/rigs/hero.json depuis sou
   - `__g.go('office'|1|'boss'|2|'joint'|'dance'|'texto'|'limo'|'bj'|'flip'|'bike'|3)` saute à un niveau.
   - `__g.ev('code')` évalue du code dans la portée du jeu (par exemple `__g.ev('ammo=30')` pour Michel saoul).
 - **smoke.py** seede `Math.random` : deux runs génèrent les mêmes rues, pratique pour comparer des captures.
-- **En jeu :** `T` ouvre le mode dev (choix du niveau, invincible, +bières), `F` passe en plein écran, `P` / `Échap` met en pause.
+- **En jeu :** `T` ouvre le mode dev (choix du niveau, invincible, +bières, bascule du rendu PixiJS / Canvas 2D), `F` passe en plein écran, `P` / `Échap` met en pause.
+- **Rendu :** `?renderer=canvas` ou `?renderer=pixi` dans l'URL force le rendu (sinon localStorage `michel-renderer`, défaut pixi).
+- **Mise en ligne :** voir `docs/DEPLOIEMENT.md` (Netlify / Cloudflare Pages, itch.io, Supabase).
 
 ## Structure
 
 ```
 index.html            le HTML (overlays, menus, écran de chargement)
-src/main.ts           point d'entrée : écran de chargement -> loadAll() -> boot()
-src/boot/loader.ts    précharge atlas, images, rigs et polices (barre pondérée par la taille), découpe les frames d'atlas
+src/main.ts           point d'entrée : écran de chargement -> loadAll() + Gfx.create() -> boot()
+src/boot/loader.ts    précharge atlas, images, rigs et polices (barre pondérée par la taille), découpe les frames d'atlas, choisit ogg/mp3
+src/gfx/              rendu PixiJS (TypeScript) : pixi.ts (compositeur, calques, repli Canvas), effects.ts (ivresse, glow,
+                      réglages TUNING), particles.ts (FX), anims.ts (séquences d'images), transition.ts (trame entre niveaux)
+src/net/              supabase-board.ts : classement en ligne (si VITE_SUPABASE_* au build)
 src/style.css         tout le CSS (polices Inter / Lilita One auto-hébergées dans src/fonts/)
 src/game-order.json   la liste ORDONNÉE des fichiers JS du jeu (voir Architecture)
 src/core/             levels.js (REGISTRE), constants, world (état, startLevel), update (platformer), loop, boot,
                       input, touch, gamepad, audio, diff, game (règles communes), minigame, util, screen, fullscreen
 src/levels/           un fichier par niveau + defineLevel({...}) : office, street (1 et 2), boss, joint, dance, texto,
                       limo, bj, flip, bike, home (3)
-src/render/           rig (drawRig, vecFace, vecDraw…), world (render, renderBase, renderWorld), street, actors, player, fx, ui-draw
+src/render/           rig (drawRig, vecFace, vecDraw…), world (render, renderBase, renderWorld), street, actors, player, fx (grain),
+                      ui-draw, juice (impacts, poussière, vibration manette, émetteurs fxRate / fxDrizzle / fxMotes)
 src/rigs/motion.js    hairTick, drawSegs, heroJoints, easeAng, easeVals
 src/ui/               title, video, phone, cards, pause, settings, dev, board, trophies, chapters, hud
 src/data/             assets (images du loader), cast (PNJ, collègues)
@@ -60,9 +70,14 @@ assets/manifest.json  structure de l'objet ASSETS (sauf rigs) ; "@img:<chemin>" 
 assets/img/           sprites (-> atlas), décors, pièces, rues
 assets/rigs/*.json    personnages (un fichier par rig ; un nouveau fichier est pris automatiquement)
 assets/ui/*.webp      key art, logo (base + flammes), fond « mile »
-public/               intro/outro (.mp4/.webm), music/*.mp3 ; public/gen/ est GÉNÉRÉ (pas dans git)
+assets/music/         musique : <nom>.mp3 + <nom>.ogg (Opus)
+assets/anim/<nom>/    (facultatif) séquences PNG/WebP + anim.json {fps, loop, anchor, scale} -> FX.anim('<nom>', x, y)
+public/               intro/outro (.mp4/.webm), meta/ (icônes, og.jpg), manifest.webmanifest, _headers ; public/gen/ est GÉNÉRÉ (pas dans git)
+supabase/schema.sql   table + RLS + anti-spam du classement en ligne
+docs/DEPLOIEMENT.md   mise en ligne pas à pas
 source/MICHEL.ai      Illustrator de Michel, 44 calques nommés
-tools/                assets.mjs, vite-legacy-game.ts (plugin), smoke.py, rig_from_ai.py, rigtools.py
+tools/                assets.mjs, vite-legacy-game.ts (plugin), smoke.py, perf.py, package-itch.py, make-meta.mjs, encode-music.sh,
+                      rig_from_ai.py, rigtools.py
 ```
 
 ## Ordre des niveaux
@@ -75,9 +90,14 @@ Vidéo d'intro → `office` (le studio : vole le pinot de Dulac, sors par la por
   - les déclarations de fonctions peuvent vivre dans n'importe quel fichier ;
   - les `const` / `let` et le code exécuté au chargement tournent dans l'ordre de la liste (attention au TDZ) ;
   - un nouveau fichier doit être ajouté à `src/game-order.json`.
-  - La conversion en vrais modules TypeScript typés se fera progressivement (à l'étape 2, en commençant par ce qui passe à PixiJS).
+  - Le nouveau code (src/boot, src/gfx, src/net, main.ts) est en TypeScript strict ; le code du jeu reste du JS en portée partagée, à convertir module par module quand on y touche.
 - **Assets :** `tools/assets.mjs` empaquette les sprites avec transparence (≤ 1024 px) en atlas WebP 2048 et copie les grandes images, tous hashés, avec `public/gen/manifest.json`. Le loader remplace chaque `"@img:…"` par l'image chargée (les frames d'atlas deviennent des canvas qui répondent à `complete` / `naturalWidth`).
-- **Boucle :** `loop` (core/loop.js) appelle `update(dt)` (`dt` plafonné à 0,05), puis `render()` / `renderBase()`. `frameDt` sert aux easings.
+- **Boucle :** `loop` (core/loop.js) appelle `update(dt)` (`dt` plafonné à 0,05), le `fxTick` du niveau, puis `render()` / `renderBase()`, puis `GFX.present()`. `frameDt` sert aux easings. `resTick` baisse ou remonte la résolution selon la vitesse des frames.
+- **Rendu (étape 2) :** le jeu dessine toujours en Canvas 2D, dans deux calques. `ctx` est le calque courant : `useMain()` (le monde, canvas #c) ou `useHud()` (HUD, bannières, téléphone, toasts).
+  - Avec PixiJS (`GFX` non nul), chaque calque devient une texture : le monde reçoit les filtres (`src/gfx/effects.ts` : ivresse selon `drunk()`, glow la nuit ou selon `fx.bloom` du registre), puis viennent les particules, puis l'interface (jamais filtrée), puis la transition en trame de points (`GFX.wipe()`, appelée par `startLevel`).
+  - Sans WebGL, ou si Pixi tourne sous 24 fps sur l'écran titre, on revient au Canvas 2D : `GFX` vaut `null`, `FX` ne fait rien, et le jeu est identique sans les effets.
+  - Tout nouveau dessin d'interface doit passer par `useHud()`.
+- **Particules (`FX`) :** `FX.burst(preset, x, y, opts)`, `FX.emit`, `FX.anim(nom, x, y)`, `FX.clear()`, en coordonnées écran (960 × 540, donc `x - camX` pour le monde). Presets : spark, ember, smoke, dust, confetti, drop, flash, mote. Pour les moments forts : `juiceHit`, `juiceWin`, `juiceLand`, `rumble(fort, faible, ms)` (render/juice.js).
 - **États :** `state` vaut `'title' | 'video' | 'phone' | 'play' | 'pause' | 'dev' | 'over' | 'outro'`.
 - **Registre de niveaux (`src/core/levels.js`) :** chaque niveau appelle `defineLevel({...})` à la fin de son fichier. Les champs (documentés en tête de `levels.js`) couvrent nom, chapitre, mode dev, musique, heure, HUD, `start` / `update` / `draw`, cinématiques (`frozen`), décor (`scene`, `night`), touches (`keydown`), clics (`pointer`), pad tactile, pause, tuto, histoire, contrôles de Settings et barre de touches.
   - `update` / `draw` présents = mini-jeu plein écran ; absents = le platformer commun (`core/update.js`, `render/world.js`).
@@ -88,7 +108,7 @@ Vidéo d'intro → `office` (le studio : vole le pinot de Dulac, sors par la por
 - **Difficulté :** `DIFFS` (facile, moyen, difficile) avec `DF = DIFFS[diff]`. Pour les mini-jeux, `mgDiff()` vaut 0,75, 1 ou 1,3.
 - **Ivresse :** `ammo` est le nombre de bières. `drunk() = clamp((ammo-9)/9)`, et `d25` gère l'effet « la tête mène » vers 25 bières.
 - **Manette :** `PAD_MAP` traduit les boutons en événements clavier. La navigation dans les menus est spatiale (`moveSpatial`). B fait retour, Start fait pause.
-- **Classement :** `renderBoard`, par mode de difficulté. Il passe par la db de l'artifact (`window.claude.use('db')`), avec un repli sur localStorage `michel-board`. Hors claude.ai, seul le repli local fonctionne. Pour la v2, la piste prévue est Supabase (voir `ROADMAP.md`, étape 4).
+- **Classement :** `renderBoard`, par mode de difficulté. Source : Supabase si le build a ses clés (`UI.board`, src/net/supabase-board.ts), sinon la db de l'artifact claude.ai, sinon localStorage `michel-board`.
 - **Chapitres :** ils se débloquent en jouant (localStorage `michel-chapters`), via `startChapter(l)`.
 - **Aides des mini-jeux :** `fxBurst`, `mgParts`, `mgDrawParts`, `mgBanner`, `mgBar`, `showCard(kicker, title, text, btn, next)`, `award(id)`.
 - **Style UI v2 :**
@@ -117,7 +137,7 @@ Vidéo d'intro → `office` (le studio : vole le pinot de Dulac, sors par la por
 ## Publication
 
 - **v1 (claude.ai) :** l'artifact `https://claude.ai/artifact/ACbvXQFR4wd5H5gCsBKsR8` (v55), un seul fichier HTML. Le code v1 est au tag git `v1-canvas` (local, pas encore poussé).
-- **v2 :** itch.io et/ou le site de l'utilisateur, sur un hébergement statique (voir `ROADMAP.md`, étape 4).
+- **v2 :** `npm run build` -> `dist/`, sur n'importe quel hébergement statique (Netlify, Cloudflare Pages : `public/_headers` gère le cache), ou `npm run package:itch` pour itch.io. Pas à pas : `docs/DEPLOIEMENT.md`.
 
 ## Workflow
 
