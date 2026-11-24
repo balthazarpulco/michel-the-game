@@ -34,7 +34,8 @@ function renderBoard(){
 }
 (async()=>{
   try{
-    const db=window.claude&&window.claude.use?await window.claude.use('db'):null;
+    // online board: Supabase when the build has its keys (src/net/supabase-board.ts), else the claude.ai page db
+    const db=UI.board||(window.claude&&window.claude.use?await window.claude.use('db'):null);
     if(!db)return;
     lbDb=db;renderBoard();
     db.collection('scores').orderBy('score','desc').limit(150).onSnapshot(snap=>{

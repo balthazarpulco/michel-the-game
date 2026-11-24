@@ -3,6 +3,7 @@ import './style.css';
 import { loadAll } from './boot/loader';
 import { boot } from 'virtual:game';
 import { Gfx, wantedRenderer } from './gfx/pixi';
+import { supabaseBoard } from './net/supabase-board';
 
 const ov = document.getElementById('loadOv')!;
 const fill = document.getElementById('loadFill')!;
@@ -23,7 +24,7 @@ Promise.all([loadAll(progress), gfxReady])
   .then(([{ assets, ui, atlas }, gfx]) => {
     gfx?.fx.anims.setAtlas(atlas);
     document.documentElement.dataset.renderer = gfx ? 'pixi' : 'canvas';
-    boot(assets, ui, gfx);
+    boot(assets, { ...ui, board: supabaseBoard() }, gfx);
     ov.classList.add('done');
     setTimeout(() => ov.remove(), 400);
   })

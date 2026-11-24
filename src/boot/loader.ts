@@ -13,13 +13,14 @@ interface Manifest {
   /** sprite path -> [atlas page, x, y, w, h] */
   frames: Record<string, number[]>;
   anims?: Record<string, import('../gfx/anims').AnimDef>;
+  music?: Record<string, { mp3?: string; ogg?: string }>;
   sizes: Record<string, number>;
   data: Record<string, unknown>;
 }
 
 export interface Loaded {
   assets: Record<string, any>;
-  ui: { bg: Drawable };
+  ui: { bg: Drawable; music: Record<string, string> };
   atlas: import('../gfx/anims').AtlasData;
 }
 
@@ -66,7 +67,7 @@ function resolve(o: any, img: (rel: string) => Drawable): any {
 }
 
 export async function loadAll(onProgress: (p: number) => void): Promise<Loaded> {
-  const man = await loadJSON<Manifest>(BASE + 'manifest.json', { cache: 'no-cache' });
+  const man = await loadJSON<Manifest>(BASE + __MANIFEST__);
 
   // progress is weighted by file size, fonts count as a small fixed share
   const jobs: { w: number; run: () => Promise<unknown> }[] = [];
@@ -102,5 +103,9 @@ export async function loadAll(onProgress: (p: number) => void): Promise<Loaded> 
       for (const n of man.rigOrder) assets.rigs[n] = resolve(rigs[n], img);
     } else assets[k] = resolve(man.data[k], img);
   }
-  return { assets, ui: { bg: img('ui/bg.webp') }, atlas: { pages, frames: man.frames, anims: man.anims || {} } };
+  // music URLs: Opus/ogg where the browser plays it, mp3 otherwise (keyed by the old file name, e.g. 'intro.mp3')
+  const probe = document.createElement('audio'), opus = !!probe.canPlayType?.('audio/ogg; codecs="opus"');
+  const music: Record<string, string> = {};
+  for (const [n, m] of Object.entries(man.music || {})) { const f = opus && m.ogg ? m.ogg : m.mp3 || m.ogg; if (f) music[n + '.mp3'] = BASE + f; }
+  return { assets, ui: { bg: img('ui/bg.webp'), music }, atlas: { pages, frames: man.frames, anims: man.anims || {} } };
 }

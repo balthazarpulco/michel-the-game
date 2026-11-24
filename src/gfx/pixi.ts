@@ -111,8 +111,31 @@ export class Gfx {
   /** Level transition: a halftone dot wipe that reveals the new level. */
   wipe() { this.wipeFx.start(); }
 
+  /**
+   * Weak devices: if the title screen runs under ~24 fps with WebGL, switch to the Canvas 2D renderer for good
+   * (reload while still on the title screen). Not when the renderer was forced in the URL (tests).
+   */
+  private probe = { t0: 0, frames: 0, done: !!new URLSearchParams(location.search).get('renderer') };
+  private checkSpeed(f: FrameInfo) {
+    const p = this.probe, now = performance.now();
+    if (p.done) return;
+    if (f.state !== 'title') { p.done = true; return; }
+    if (!p.t0) { p.t0 = now + 1500; return; }          // ignore the first 1.5 s (decoding, warm-up)
+    if (now < p.t0) return;
+    p.frames++;
+    if (now - p.t0 < 3000) return;
+    p.done = true;
+    const fps = p.frames / ((now - p.t0) / 1000);
+    if (fps < 24) {
+      console.warn(`PixiJS trop lent ici (${fps.toFixed(1)} fps) : passage au rendu Canvas 2D`);
+      setWantedRenderer('canvas');
+      location.reload();
+    }
+  }
+
   /** Called once per frame, after the game drew both 2D layers. */
   present(f: FrameInfo) {
+    this.checkSpeed(f);
     const w = this.cv.width, h = this.cv.height;
     if (this.renderer.width !== w || this.renderer.height !== h) this.resize(w, h);
     this.world.sync();

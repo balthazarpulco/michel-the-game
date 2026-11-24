@@ -4,7 +4,8 @@
 //   node tools/assets.mjs [--force]   (also run by `npm run dev` / `npm run build`; skipped when assets/ didn't change)
 //
 // Output:
-//   public/gen/manifest.json     what the loader reads first (never cached: it names every other file)
+//   public/gen/manifest.<hash>.json  what the loader reads first (its name is baked into the build by vite.config.ts)
+//   public/gen/music/…           music, mp3 + Opus/ogg
 //   public/gen/atlas/…           sprite atlases (lossless WebP) — frames listed in the manifest
 //   public/gen/img/…             big images (backgrounds, rooms), with a content hash in the file name (cache busting)
 //   public/gen/rigs/…            one JSON per rig, hashed too
@@ -129,7 +130,7 @@ function inputsHash() {
 export async function buildAssets({ force = false } = {}) {
   const stamp = path.join(OUT, '.inputs'), fp = inputsHash();
   if (!force && fs.existsSync(stamp) && fs.readFileSync(stamp, 'utf8') === fp)
-    return JSON.parse(fs.readFileSync(path.join(OUT, 'manifest.json'), 'utf8'));
+    return JSON.parse(fs.readFileSync(path.join(OUT, fs.readFileSync(path.join(OUT, '.manifest-name'), 'utf8')), 'utf8'));
   fs.rmSync(OUT, { recursive: true, force: true });
   for (const k in sizes) delete sizes[k];
   const man = JSON.parse(fs.readFileSync(A('manifest.json'), 'utf8'));
@@ -158,11 +159,23 @@ export async function buildAssets({ force = false } = {}) {
   }
   const anims = await collectAnims(sprites);
   const { pages, frames } = await packAtlases(sprites);
+  // music: assets/music/<name>.mp3 (+ <name>.ogg in Opus, smaller; see tools/encode-music.sh), hashed, loaded on demand
+  const music = {};
+  for (const f of fs.readdirSync(A('music')).sort()) {
+    const m = f.match(/^(.+)\.(mp3|ogg)$/);
+    if (!m) continue;
+    const buf = fs.readFileSync(A('music', f));
+    (music[m[1]] = music[m[1]] || {})[m[2]] = write(withHash(`music/${f}`, buf), buf);
+  }
   // the title screen's background street is drawn by the game too
   { const buf = fs.readFileSync(A('ui', 'bg.webp')); files['ui/bg.webp'] = write(withHash('img/ui/bg.webp', buf), buf); }
 
-  const out = { order, rigOrder, rigs, files, atlases: pages, frames, anims, sizes, data: man };
-  fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(out));
+  const out = { order, rigOrder, rigs, files, atlases: pages, frames, anims, music, sizes, data: man };
+  // the manifest is hashed too (every file under gen/ can then be cached forever); vite.config.ts reads its name
+  const mbuf = Buffer.from(JSON.stringify(out));
+  const mname = withHash('manifest.json', mbuf);
+  fs.writeFileSync(path.join(OUT, mname), mbuf);
+  fs.writeFileSync(path.join(OUT, '.manifest-name'), mname);
   fs.writeFileSync(stamp, fp);
   return out;
 }

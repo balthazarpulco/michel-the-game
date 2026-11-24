@@ -8,7 +8,7 @@ const muteBtn=document.getElementById('mute');
 // ---------- music: one track per group of levels, cross-faded ----------
 const MUSIC={intro:'intro.mp3',a:'1-2-3.mp3',b:'4.mp3',c:'5-6.mp3',d:'7-8.mp3',e:'9.mp3'};
 const tracks={};let curTrack=null;const MUSIC_VOL=.5;
-function trk(k){if(!tracks[k]){const a=new Audio('music/'+MUSIC[k]);a.loop=true;a.preload='auto';a.volume=0;tracks[k]=a}return tracks[k]}
+function trk(k){if(!tracks[k]){const a=new Audio(UI.music[MUSIC[k]]||('music/'+MUSIC[k]));a.loop=true;a.preload='auto';a.volume=0;tracks[k]=a}return tracks[k]}
 function playTrack(k){
   if(!k)return;
   const a=trk(k);

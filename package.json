@@ -9,7 +9,9 @@
     "build": "npm run assets && tsc --noEmit && vite build",
     "build:test": "npm run assets && vite build --mode test --outDir dist-test",
     "preview": "vite preview",
-    "smoke": "python3 tools/smoke.py"
+    "smoke": "python3 tools/smoke.py",
+    "package:itch": "python3 tools/package-itch.py",
+    "meta": "node tools/make-meta.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

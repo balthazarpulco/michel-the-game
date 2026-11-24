@@ -3,7 +3,8 @@
 
 let last=performance.now();
 function loop(now){
-  const dt=Math.min(.05,(now-last)/1000);last=now;frameDt=dt;
+  const raw=(now-last)/1000,dt=Math.min(.05,raw);last=now;frameDt=dt;
+  resTick(raw);
   try{pollPad()}catch(e){}
   try{padTick()}catch(e){}
   {const pb=document.getElementById('pauseBtn'),v=state==='title'||!document.getElementById('title').hidden?'hidden':'';if(pb.style.visibility!==v)pb.style.visibility=v}
